@@ -20,52 +20,52 @@ public class PrintHelper {
 
     public static void print(Invoice invoice, File output) throws IOException {
         PdfDocument pdf = new PdfDocument(new PdfWriter(output.getAbsolutePath(),new WriterProperties().addXmpMetadata()));
-        pdf.setDefaultPageSize(PageSize.A5.rotate());
+        pdf.setDefaultPageSize(PageSize.A4);
         PdfFont font = PdfFontFactory.createFont(FontConstants.HELVETICA);
         Document document = new Document(pdf).setFont(font).setFontSize(7);
         float ratio = (float) 820.0 / 297;
         Paragraph paragraph = new Paragraph(String.format("%07d", invoice.getId()));
-        paragraph.setFixedPosition(76 * ratio, 110 * ratio, 100);
+        paragraph.setFixedPosition(76 * ratio, 258 * ratio, 100);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getClient());
-        paragraph.setFixedPosition(32 * ratio, 99 * ratio, 300);
+        paragraph.setFixedPosition(32 * ratio, 247 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getTransporter());
-        paragraph.setFixedPosition(177 * ratio, 99 * ratio, 200);
+        paragraph.setFixedPosition(177 * ratio, 247 * ratio, 200);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getProduct().getName());
-        paragraph.setFixedPosition(33 * ratio, 94 * ratio, 300);
+        paragraph.setFixedPosition(33 * ratio, 242 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getTruckNumber());
-        paragraph.setFixedPosition(174 * ratio, 94 * ratio, 300);
+        paragraph.setFixedPosition(174 * ratio, 242 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getVolume() + "");
-        paragraph.setFixedPosition(35 * ratio, 89 * ratio, 300);
+        paragraph.setFixedPosition(35 * ratio, 237 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getDriver());
-        paragraph.setFixedPosition(173 * ratio, 89 * ratio, 300);
+        paragraph.setFixedPosition(173 * ratio, 237 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(invoice.getLoadingDate()));
-        paragraph.setFixedPosition(53 * ratio, 84 * ratio, 300);
+        paragraph.setFixedPosition(53 * ratio, 232 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getDeliveryPlace());
-        paragraph.setFixedPosition(183 * ratio, 84 * ratio, 300);
+        paragraph.setFixedPosition(183 * ratio, 232 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getLoadingDepot());
-        paragraph.setFixedPosition(56 * ratio, 79 * ratio, 300);
+        paragraph.setFixedPosition(56 * ratio, 227 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(invoice.getReceiptDate()));
-        paragraph.setFixedPosition(184 * ratio, 79 * ratio, 300);
+        paragraph.setFixedPosition(184 * ratio, 227 * ratio, 300);
         document.add(paragraph);
 
         document.close();
