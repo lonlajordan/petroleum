@@ -27,6 +27,7 @@ public class User {
     @Column(nullable = false)
     private Role role = Role.ROLE_DISPATCHER;
     private LocalDateTime lastLogin = LocalDateTime.now();
+    @Column(name = "actif")
     private boolean enabled = true;
 
     public User() { }
