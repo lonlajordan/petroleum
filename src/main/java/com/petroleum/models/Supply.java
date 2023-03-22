@@ -1,0 +1,23 @@
+package com.petroleum.models;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Setter
+public class Supply {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
+    private Long id;
+    @Column(nullable = false)
+    private int volume = 0;
+    private LocalDateTime date = LocalDateTime.now();
+    @ManyToOne(cascade={CascadeType.DETACH})
+    @JoinColumn(name="product_id")
+    private Product product;
+}

@@ -1,0 +1,223 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
+    <title>Approvisionnements</title>
+    <link rel="icon" type="image/x-ico" th:href="@{/images/logo.png}">
+    <link th:href="@{/fonts/inter.css}" rel="stylesheet"/>
+    <link th:href="@{/css/tabler.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/tabler-vendors.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/demo.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
+    <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
+    <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="page" id="wrapper">
+    <div class="sticky-top">
+        <div th:replace="header.html"></div>
+        <div class="navbar-expand-md">
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <div class="navbar navbar-light">
+                    <div class="container-fluid">
+                        <div class="d-flex">
+                            <ol class="breadcrumb navbar-nav d-flex align-items-center flex-row" aria-label="breadcrumbs">
+                                <li class="breadcrumb-item">
+                                    <a th:href="@{/home}" >
+                                      <span class="d-lg-inline-block">
+                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                                      </span>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active"><a th:href="@{/supplies}">Liste des approvisionnements</a></li>
+                            </ol>
+                        </div>
+                        <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
+                            <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+                            </span>
+                                <input type="text" value="" class="form-control" placeholder="Rechercher…" id="search-addon">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-wrapper">
+        <div class="container-fluid">
+            <!-- Page title -->
+            <div class="page-header d-print-none">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <a th:if="${!#lists.isEmpty(supplies)}" href="javascript:reverseSelection();" class="btn btn-white" title="Inverser la sélection">
+                            <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3.5 5.5l1.5 1.5l2.5 -2.5" /><path d="M3.5 11.5l1.5 1.5l2.5 -2.5" /><path d="M3.5 17.5l1.5 1.5l2.5 -2.5" /><line x1="11" y1="6" x2="20" y2="6" /><line x1="11" y1="12" x2="20" y2="12" /><line x1="11" y1="18" x2="20" y2="18" /></svg>
+                        </a>
+                    </div>
+                    <!-- Page title actions -->
+                    <div class="col-12 col-md-auto ms-auto d-print-none">
+                        <div class="btn-list">
+                            <a id="create-folder" data-bs-toggle="modal" data-bs-target="#modal-create" class="btn btn-success d-none d-sm-inline-block">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                Ajouter
+                            </a>
+                            <a href="#" class="btn btn-danger d-none d-sm-inline-block" onclick="invoke('delete', 'product')">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                Supprimer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-body">
+            <div class="container-fluid">
+                <div class="row row-deck row-cards">
+                    <div class="col-12 mt-1">
+                        <div class="card">
+                            <div id="table-default">
+                                <table class="table card-table table-vcenter text-nowrap datatable paging exclude-first-sort searching multiple-selection" id="main-table">
+                                    <thead>
+                                    <tr>
+                                        <th class="w-1">
+                                            <input class="form-check-input m-0 align-middle" type="checkbox">
+                                        </th>
+                                        <th>Produit</th>
+                                        <th>Volume</th>
+                                        <th>Date d'approvisionnement</th>
+                                        <th class="fit-cell-content"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="table-tbody">
+                                    <tr th:each="supply: ${supplies}">
+                                        <td>
+                                            <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${supply.id}">
+                                        </td>
+                                        <td th:text="${supply.product?.name}"></td>
+                                        <td th:text="${supply.volume}"></td>
+                                        <td th:text="${#temporals.format(supply.date, 'dd-MM-yyyy  HH:mm')}"></td>
+                                        <td class="inline-actions fit-cell-content">
+                                            <div class="dropdown">
+                                                <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
+                                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
+                                                </a>
+                                                <div class="dropdown-menu mw-0">
+                                                    <a class="dropdown-item mw-0" th:data-id="${supply.id}" th:data-product="${supply.product?.id}" th:data-volume="${supply.volume}" href="#" onclick="editSupply(this.getAttribute('data-id'), this.getAttribute('data-product'), this.getAttribute('data-volume'))">
+                                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
+                                                        <span class="ml-2">Modifier</span>
+                                                    </a>
+                                                    <a class="dropdown-item mw-0 text-danger" th:data-id="${supply.id}" onclick="deleteItem(this.getAttribute('data-id'), 'supplies/delete')" href="#">
+                                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                                        <span class="ml-2">Supprimer</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div th:if="${totalPages > 1}" class="card-footer py-2 d-flex align-items-center">
+                                <div id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="supplies"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="footer.html"></div>
+    </div>
+</div>
+</div>
+<div class="modal modal-blur fade" id="modal-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Formulaire</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form name="saveSupply" th:action="@{/supplies}" method="post">
+                <input id="supply-id" type="hidden" name="id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label required">Produit</label>
+                        <select class="form-select" name="productId" id="supply-product" required>
+                            <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.name}"></option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Volume (en litre)</label>
+                        <input type="number" min="1" class="form-control text-transform-uppercase" id="supply-volume" name="volume" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Annuler
+                    </a>
+                    <button class="btn btn-primary ms-auto" type="submit">
+                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><circle cx="12" cy="14" r="2" /><polyline points="14 4 14 8 8 8 8 4" /></svg>
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal modal-blur fade" id="modal-delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
+                <h3>Êtes vous sûr ?</h3>
+                <div class="text-muted" id="delete-message">Voulez-vous vraiment supprimer ces approvisionnements ?</div>
+            </div>
+            <div class="modal-footer">
+                <form th:action="@{/supplies/delete}" method="post">
+                    <div id="delete-objects"></div>
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                Annuler
+                            </a></div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-danger w-100">
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/tabler.min.js}"></script>
+<script th:src="@{/js/demo.min.js}"></script>
+<script th:src="@{/js/js-snackbar.min.js}"></script>
+<script th:src="@{/js/dataTables.min.js}"></script>
+<script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
+<script th:src="@{/js/loadingoverlay.min.js}"></script>
+<script th:src="@{/js/dropzone.min.js}"></script>
+<script th:src="@{/js/file.manager.js}"></script>
+<!--/*@thymesVar id="notification" type="com.petroleum.models.Notification"*/-->
+<script th:if="${notification}" th:inline="javascript">
+    new SnackBar({
+        message: /*[[${notification?.message}]]*/ '',
+        status: /*[[${notification?.type == 'error' ? 'error' : 'success'}]]*/ '',
+        dismissible: false,
+        position: 'bc',
+        fixed: true,
+        timeout: 3000,
+    });
+</script>
+</body>
+</html>
