@@ -38,7 +38,6 @@ public class Invoice {
     private Status status = Status.PENDING;
     @Enumerated(EnumType.ORDINAL)
     private Step step = Step.OPERATING_OFFICER;
-    @Column(columnDefinition = "LONGTEXT")
     private String reason = "";
 
     public boolean canDecide(boolean isDirector){
