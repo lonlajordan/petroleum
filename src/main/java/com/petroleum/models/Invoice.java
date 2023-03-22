@@ -25,6 +25,7 @@ public class Invoice {
     @Column(nullable = false)
     private int volume;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Column(columnDefinition = "DATE")
     private LocalDate loadingDate;
     private String loadingDepot;
     private String transporter;
@@ -32,6 +33,7 @@ public class Invoice {
     private String driver;
     private String deliveryPlace;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Column(columnDefinition = "DATE")
     private LocalDate receiptDate;
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime date = LocalDateTime.now();
