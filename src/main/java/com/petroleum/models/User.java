@@ -24,7 +24,7 @@ public class User {
     @Column(nullable = false)
     private String password;
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
+    @Column(nullable = false, name = "roles")
     private Role role = Role.ROLE_DISPATCHER;
     private LocalDateTime lastLogin = LocalDateTime.now();
     @Column(name = "actif")
