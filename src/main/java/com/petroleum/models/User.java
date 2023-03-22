@@ -26,6 +26,7 @@ public class User {
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false, name = "roles")
     private Role role = Role.ROLE_DISPATCHER;
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLogin = LocalDateTime.now();
     @Column(name = "actif")
     private boolean enabled = true;

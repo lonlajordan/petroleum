@@ -33,6 +33,7 @@ public class Invoice {
     private String deliveryPlace;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate receiptDate;
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime date = LocalDateTime.now();
     @Enumerated(EnumType.ORDINAL)
     private Status status = Status.PENDING;

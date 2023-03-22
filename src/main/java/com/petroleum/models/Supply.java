@@ -16,6 +16,7 @@ public class Supply {
     private Long id;
     @Column(nullable = false)
     private int volume = 0;
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime date = LocalDateTime.now();
     @ManyToOne(cascade={CascadeType.DETACH})
     @JoinColumn(name="product_id")
