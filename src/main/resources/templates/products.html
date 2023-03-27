@@ -12,10 +12,9 @@
     <link th:href="@{/css/tabler-vendors.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/demo.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
-    <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
     <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
-    <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
+    <link th:href="@{/css/petroleum.css}" rel="stylesheet"/>
 </head>
 <body>
 <div class="page" id="wrapper">
@@ -89,7 +88,13 @@
                                                 <input class="form-check-input m-0 align-middle" type="checkbox">
                                             </th>
                                             <th>Nom</th>
-                                            <th>Volume (en litre)</th>
+                                            <th>Passage dépôt</th>
+                                            <th>TVA sur le passage dépôt</th>
+                                            <th>Soutien à la raffinerie</th>
+                                            <th>Taxe spéciale</th>
+                                            <th>Péréquation transport</th>
+                                            <th>Marquage chimique</th>
+                                            <th>TVA sur marquage</th>
                                             <th class="fit-cell-content"></th>
                                         </tr>
                                     </thead>
@@ -99,14 +104,20 @@
                                                 <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${product.id}">
                                             </td>
                                             <td th:text="${product.name}"></td>
-                                            <td th:text="${product.volume}"></td>
+                                            <td th:text="${product.passage}"></td>
+                                            <td th:text="${product.passageTax}"></td>
+                                            <td th:text="${product.refinery}"></td>
+                                            <td th:text="${product.specialTax}"></td>
+                                            <td th:text="${product.transport}"></td>
+                                            <td th:text="${product.marking}"></td>
+                                            <td th:text="${product.markingTax}"></td>
                                             <td class="inline-actions fit-cell-content">
                                                 <div class="dropdown">
                                                     <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
                                                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
                                                     </a>
                                                     <div class="dropdown-menu mw-0">
-                                                        <a class="dropdown-item mw-0" th:data-id="${product.id}" th:data-name="${product.name}" href="#" onclick="editProduct(this.getAttribute('data-id'), this.getAttribute('data-name'))">
+                                                        <a class="dropdown-item mw-0" th:data-id="${product.id}" th:data-name="${product.name}" th:data-passage="${product.passage}" th:data-passage-tax="${product.passageTax}" th:data-refinery="${product.refinery}" th:data-special-tax="${product.specialTax}" th:data-transport="${product.transport}" th:data-marking="${product.marking}" th:data-marking-tax="${product.markingTax}" href="#" onclick="editProduct(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-passage'), this.getAttribute('data-passage-tax'), this.getAttribute('data-refinery'), this.getAttribute('data-special-tax'), this.getAttribute('data-transport'), this.getAttribute('data-marking'), this.getAttribute('data-marking-tax'))">
                                                             <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
                                                             <span class="ml-2">Modifier</span>
                                                         </a>
@@ -143,6 +154,34 @@
                     <div class="mb-3">
                         <label class="form-label required">Nom</label>
                         <input type="text" class="form-control text-transform-uppercase" id="product-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Passage dépôt</label>
+                        <input type="number" min="0" step="0.01" class="form-control" id="passage" name="passage" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">TVA sur le passage dépôt</label>
+                        <input type="number" min="0" step="0.01" class="form-control" id="passageTax" name="passageTax" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Soutien à la raffinerie</label>
+                        <input type="number" min="0" step="0.01" class="form-control" id="refinery" name="refinery" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Taxe spéciale</label>
+                        <input type="number" min="0" step="0.01" class="form-control" id="specialTax" name="specialTax" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Péréquation transport</label>
+                        <input type="number" min="0" step="0.01" class="form-control" id="transport" name="transport" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Marquage chimique</label>
+                        <input type="number" min="0" step="0.01" class="form-control" id="marking" name="marking" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">TVA sur marquage</label>
+                        <input type="number" min="0" step="0.01" class="form-control" id="markingTax" name="markingTax" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -195,8 +234,7 @@
 <script th:src="@{/js/dataTables.min.js}"></script>
 <script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
 <script th:src="@{/js/loadingoverlay.min.js}"></script>
-<script th:src="@{/js/dropzone.min.js}"></script>
-<script th:src="@{/js/file.manager.js}"></script>
+<script th:src="@{/js/petroleum.js}"></script>
 <!--/*@thymesVar id="notification" type="com.petroleum.models.Notification"*/-->
 <script th:if="${notification}" th:inline="javascript">
     new SnackBar({

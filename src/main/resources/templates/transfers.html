@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}">
+    <title>Transferts | Petroleum</title>
+    <link rel="icon" type="image/x-ico" th:href="@{/images/logo.png}">
+    <link th:href="@{/fonts/inter.css}" rel="stylesheet">
+    <link th:href="@{/css/tabler.min.css}" rel="stylesheet">
+    <link th:href="@{/css/tabler-vendors.min.css}" rel="stylesheet">
+    <link th:href="@{/css/demo.min.css}" rel="stylesheet">
+    <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet">
+    <link th:href="@{/css/pagination.min.css}" rel="stylesheet">
+    <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
+    <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
+    <link th:href="@{/css/petroleum.css}" rel="stylesheet">
+</head>
+<body>
+<div class="page" id="wrapper">
+    <div class="sticky-top">
+        <div th:replace="header.html"></div>
+        <div class="navbar-expand-md">
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <div class="navbar navbar-light">
+                    <div class="container-fluid">
+                        <div class="d-flex">
+                            <ol class="breadcrumb navbar-nav d-flex align-items-center flex-row" aria-label="breadcrumbs">
+                                <li class="breadcrumb-item">
+                                    <a th:href="@{/home}">
+                                      <span class="d-lg-inline-block">
+                                        <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><polyline points="5 12 3 12 12 3 21 12 19 12"></polyline><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path></svg>
+                                      </span>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active"><a href="#">Liste des bons de transfert</a></li>
+                            </ol>
+                        </div>
+                        <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
+                            <div class="input-icon">
+                              <span class="input-icon-addon">
+                                  <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+                              </span>
+                              <input type="text" value="" class="form-control" placeholder="Rechercher…" id="search-addon">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-wrapper">
+        <div class="container-fluid">
+            <!-- Page title -->
+            <div class="page-header d-print-none">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <a th:if="${!#lists.isEmpty(transfers)}" href="javascript:reverseSelection();" class="btn btn-white" title="Inverser la sélection">
+                            <svg class="icon m-0" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path><path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path><line x1="11" y1="6" x2="20" y2="6"></line><line x1="11" y1="12" x2="20" y2="12"></line><line x1="11" y1="18" x2="20" y2="18"></line></svg>
+                        </a>
+                    </div>
+                    <!-- Page title actions -->
+                    <div class="col-12 col-md-auto ms-auto d-print-none">
+                        <div class="btn-list">
+                            <a id="create-transfer" data-bs-toggle="modal" data-bs-target="#modal-create" class="btn btn-success d-none d-sm-inline-block">
+                                <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Nouveau
+                            </a>
+                            <a onclick="invoke('delete', 'transfer')" class="btn btn-danger d-none d-sm-inline-block">
+                                <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="4" y1="7" x2="20" y2="7"></line><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path></svg>
+                                Supprimer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-body">
+            <div class="container-fluid">
+                <div class="row row-deck row-cards">
+                    <div class="col-12 mt-1">
+                        <div class="card">
+                            <div id="table-default">
+                                <table class="table card-table table-vcenter text-nowrap datatable paging exclude-first-sort searching multiple-selection" id="main-table">
+                                    <thead>
+                                    <tr>
+                                        <th class="w-1">
+                                            <input class="form-check-input m-0 align-middle" type="checkbox">
+                                        </th>
+                                        <th>ID</th>
+                                        <th>Client</th>
+                                        <th>Produit</th>
+                                        <th>Volume (en litre)</th>
+                                        <th>Chargement</th>
+                                        <th>Transport</th>
+                                        <th>Livraison</th>
+                                        <th>Date de création</th>
+                                        <th>Statut</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="table-tbody">
+                                    <tr th:each="transfer: ${transfers}">
+                                        <td>
+                                            <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${transfer.id}">
+                                        </td>
+                                        <td th:text="${transfer.id}"></td>
+                                        <td th:text="${transfer.client}"></td>
+                                        <td th:text="${transfer.product?.name}"></td>
+                                        <td th:text="${transfer.volume}"></td>
+                                        <td>
+                                            <span th:text="${transfer.loadingDepot?.name}"></span><br><i th:text="${#temporals.format(transfer.loadingDate, 'dd-MM-yyyy')}"></i>
+                                        </td>
+                                        <td>
+                                            <span th:text="${transfer.transporter}"></span><br>
+                                            <span th:text="${transfer.driver}"></span><br>
+                                            <i th:text="${transfer.truckNumber}"></i>
+                                        </td>
+                                        <td>
+                                            <span th:text="${transfer.deliveryPlace?.name}"></span><br><i th:text="${#temporals.format(transfer.receiptDate, 'dd-MM-yyyy')}"></i>
+                                        </td>
+                                        <td class="sort-date" th:text="${#temporals.format(transfer.date, 'dd-MM-yyyy  HH:mm')}"></td>
+                                        <td class="sort-status">
+                                            <span class="badge me-1" th:classappend="${T(com.petroleum.enums.Status).APPROVED.equals(transfer.status) ? 'bg-success' : (T(com.petroleum.enums.Status).REJECTED.equals(transfer.status) ? 'bg-danger' : 'bg-info')}"></span><span th:text="${transfer.status.displayValue}"></span>
+                                        </td>
+                                        <td class="inline-actions">
+                                            <div class="dropdown">
+                                                <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
+                                                    <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
+                                                </a>
+                                                <div class="dropdown-menu mw-0">
+                                                    <a class="dropdown-item mw-0" th:if="${T(com.petroleum.enums.Status).REJECTED.equals(transfer.status)}" th:data-reason="${transfer.reason}" onclick="showDetails(this.getAttribute('data-reason'))" href="#">
+                                                        <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M13 5h8"></path><path d="M13 9h5"></path><path d="M13 15h8"></path><path d="M13 19h5"></path><rect x="3" y="4" width="6" height="6" rx="1"></rect><rect x="3" y="14" width="6" height="6" rx="1"></rect></svg>
+                                                        <span class="ml-2">Motif du rejet</span>
+                                                    </a>
+                                                    <a class="dropdown-item mw-0" th:if="${!T(com.petroleum.enums.Status).APPROVED.equals(transfer.status)}" sec:authorize="hasAnyRole('ROLE_DISPATCHER', 'ROLE_ADMIN')" th:data-id="${transfer.id}" th:data-client="${transfer.client}" th:data-product="${transfer.product?.id}" th:data-volume="${transfer.volume}" th:data-loading-depot="${transfer.loadingDepot?.id}" th:data-transporter="${transfer.transporter}" th:data-driver="${transfer.driver}" th:data-loading-date="${#temporals.format(transfer.loadingDate, 'yyyy-MM-dd')}" th:data-truck-number="${transfer.truckNumber}" th:data-delivery-place="${transfer.deliveryPlace?.id}" th:data-receipt-date="${#temporals.format(transfer.receiptDate, 'yyyy-MM-dd')}" onclick="editTransfer(this.getAttribute('data-id'), this.getAttribute('data-client'), this.getAttribute('data-product'), this.getAttribute('data-volume'), this.getAttribute('data-loading-depot'), this.getAttribute('data-transporter'), this.getAttribute('data-driver'), this.getAttribute('data-loading-date'), this.getAttribute('data-truck-number'), this.getAttribute('data-delivery-place'), this.getAttribute('data-receipt-date'))" href="#">
+                                                        <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4"></path><line x1="13.5" y1="6.5" x2="17.5" y2="10.5"></line></svg>
+                                                        <span class="ml-2">Modifier</span>
+                                                    </a>
+                                                    <a class="dropdown-item mw-0" sec:authorize="hasRole('ROLE_DISPATCHER')" th:if="${T(com.petroleum.enums.Status).REJECTED.equals(transfer.status)}" th:href="@{'/transfers/' + ${transfer.id} + '/submit'}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-send" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                            <path d="M10 14l11 -11"></path>
+                                                            <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5"></path>
+                                                        </svg>
+                                                        <span class="ml-2">Soumettre</span>
+                                                    </a>
+                                                    <th:block th:if="${transfer.canDecide(isDirector)}" sec:authorize="hasAnyRole('ROLE_OPERATING_OFFICER','ROLE_DIRECTOR')">
+                                                        <a class="dropdown-item mw-0" th:href="@{'/transfers/' + ${transfer.id} + '/approve'}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                <path d="M5 12l5 5l10 -10"></path>
+                                                            </svg>
+                                                            <span class="ml-2">Approuver</span>
+                                                        </a>
+                                                        <a class="dropdown-item mw-0" th:data-id="${transfer.id}" onclick="rejectTransfer(this.getAttribute('data-id'))" href="#">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                <path d="M18 6l-12 12"></path>
+                                                                <path d="M6 6l12 12"></path>
+                                                            </svg>
+                                                            <span class="ml-2">Rejeter</span>
+                                                        </a>
+                                                    </th:block>
+                                                    <a class="dropdown-item mw-0" th:if="${T(com.petroleum.enums.Status).APPROVED.equals(transfer.status)}" th:href="@{'/transfers/' + ${transfer.id}}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                            <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"></path>
+                                                            <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
+                                                            <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"></path>
+                                                        </svg>
+                                                        <span class="ml-2">Imprimer</span>
+                                                    </a>
+                                                    <a class="dropdown-item mw-0 text-danger" th:if="${!T(com.petroleum.enums.Status).APPROVED.equals(transfer.status)}" th:data-id="${transfer.id}" onclick="deleteItem(this.getAttribute('data-id'), 'transfer/delete')" href="#">
+                                                        <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="4" y1="7" x2="20" y2="7"></line><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path></svg>
+                                                        <span class="ml-2">Supprimer</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div th:if="${totalPages > 1}" class="card-footer py-2 d-flex align-items-center">
+                                <div id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="home"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="footer.html"></div>
+    </div>
+</div>
+
+<div class="modal modal-blur fade" id="modal-reject" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Formulaire</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form name="rejectForm" th:action="@{/transfers/reject}" method="post">
+                <input id="transfer-reject-id" type="hidden" name="id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label required">Motif du rejet</label>
+                        <textarea class="form-control" id="transfer-reason" name="reason" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Annuler
+                    </a>
+                    <button class="btn btn-primary ms-auto" type="submit">
+                        <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path><circle cx="12" cy="14" r="2"></circle><polyline points="14 4 14 8 8 8 8 4"></polyline></svg>
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal modal-blur fade" id="modal-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Formulaire</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form name="transferForm" th:action="@{/transfers}" method="post">
+                <input id="transfer-id" type="hidden" name="id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label required">Client</label>
+                        <input class="form-control text-transform-uppercase" name="client" id="transfer-client" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">Produit</label>
+                            <select class="form-select" name="productId" id="transfer-product" required>
+                                <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.name}"></option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">Volume (en litres)</label>
+                            <input class="form-control" name="volume" type="number" id="transfer-volume" min="1" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">Dépot de chargement</label>
+                            <select class="form-select" name="loadingDepotId" id="transfer-loading-depot" required>
+                                <option th:each="depot : ${depots}" th:value="${depot.id}" th:text="${depot.name}"></option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">Date de chargement</label>
+                            <input class="form-control" type="date" id="transfer-loading-date" name="loadingDate" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Transporteur</label>
+                        <input class="form-control text-transform-uppercase" name="transporter" id="transfer-transporter" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">N° Camion</label>
+                            <input class="form-control text-transform-uppercase" name="truckNumber" id="transfer-truck-number" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">Chauffeur</label>
+                            <input class="form-control text-transform-uppercase" name="driver" id="transfer-driver" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">Lieu de livraison</label>
+                            <select class="form-select" name="deliveryPlaceId" id="transfer-delivery-place" required>
+                                <option th:each="depot : ${depots}" th:value="${depot.id}" th:text="${depot.name}"></option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">Date de réception</label>
+                            <input class="form-control" type="date" name="receiptDate" id="transfer-receipt-date" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Annuler
+                    </a>
+                    <button id="save-transfer" class="btn btn-primary ms-auto">
+                        <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path><circle cx="12" cy="14" r="2"></circle><polyline points="14 4 14 8 8 8 8 4"></polyline></svg>
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal modal-blur fade" id="modal-details" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Motif du rejet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="error-details"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal modal-blur fade" id="modal-delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg class="icon mb-2 text-danger icon-lg" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 9v2m0 4v.01"></path><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path></svg>
+                <h3>Êtes vous sûr ?</h3>
+                <div class="text-muted" id="delete-message">Voulez-vous vraiment supprimer ce élément ?</div>
+            </div>
+            <div class="modal-footer">
+                <form th:action="@{/transfers/delete}" method="post">
+                    <div id="delete-objects"></div>
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                Annuler
+                            </a></div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-danger w-100">
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/tabler.min.js}"></script>
+<script th:src="@{/js/demo.min.js}"></script>
+<script th:src="@{/js/js-snackbar.min.js}"></script>
+<script th:src="@{/js/dataTables.min.js}"></script>
+<script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
+<script th:src="@{/js/loadingoverlay.min.js}"></script>
+<script th:src="@{/js/pagination.min.js}"></script>
+<script th:src="@{/js/petroleum.js}"></script>
+<!--/*@thymesVar id="notification" type="com.petroleum.models.Notification"*/-->
+<script th:if="${notification}" th:inline="javascript">
+    new SnackBar({
+        message: /*[[${notification?.message}]]*/ '',
+        status: /*[[${notification?.type}]]*/ '',
+        dismissible: false,
+        position: 'bc',
+        fixed: true,
+        timeout: 3000,
+    });
+</script>
+</body>
+</html>

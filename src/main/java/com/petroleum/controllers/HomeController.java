@@ -3,6 +3,7 @@ package com.petroleum.controllers;
 import com.petroleum.enums.Role;
 import com.petroleum.models.Invoice;
 import com.petroleum.models.User;
+import com.petroleum.repositories.DepotRepository;
 import com.petroleum.repositories.InvoiceRepository;
 import com.petroleum.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HomeController {
 
+    private final DepotRepository depotRepository;
     private final InvoiceRepository invoiceRepository;
     private final ProductRepository productRepository;
 
@@ -33,6 +35,7 @@ public class HomeController {
         model.addAttribute("currentPage", p);
         model.addAttribute("filtered", false);
         model.addAttribute("products", productRepository.findAll());
+        model.addAttribute("depots", depotRepository.findAll());
         User user = (User) session.getAttribute("user");
         model.addAttribute("isDirector", Role.ROLE_DIRECTOR.equals(user.getRole()));
         return "home";

@@ -17,8 +17,17 @@ public class Product {
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;
+    private double passage = 0;
+    private double passageTax = 0;
+    private double refinery = 0;
+    private double specialTax = 0;
+    private double transport = 0;
+    private double marking = 0;
+    private double markingTax = 0;
     @Transient
-    private int volume = 0;
+    private double volume = 0;
+    @OneToMany(mappedBy="product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Stock> stocks = new ArrayList<>();
     @OneToMany(mappedBy="product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invoice> invoices = new ArrayList<>();
     @OneToMany(mappedBy="product", cascade = CascadeType.ALL, orphanRemoval = true)

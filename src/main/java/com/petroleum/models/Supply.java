@@ -15,10 +15,13 @@ public class Supply {
     @Column(nullable = false)
     private Long id;
     @Column(nullable = false)
-    private int volume = 0;
+    private double volume = 0;
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime date = LocalDateTime.now();
-    @ManyToOne(cascade={CascadeType.DETACH})
+    @ManyToOne(cascade={CascadeType.DETACH}, optional = false)
     @JoinColumn(name="product_id")
     private Product product;
+    @ManyToOne(cascade={CascadeType.DETACH}, optional = false)
+    @JoinColumn(name="depot_id")
+    private Depot depot;
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-public class Invoice {
+public class Transfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
@@ -32,7 +32,8 @@ public class Invoice {
     private String transporter;
     private String truckNumber;
     private String driver;
-    private String deliveryPlace;
+    @ManyToOne(cascade={CascadeType.DETACH}, optional = false)
+    private Depot deliveryPlace;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Column(columnDefinition = "DATE")
     private LocalDate receiptDate;

@@ -4,11 +4,9 @@ import com.petroleum.enums.Role;
 import com.petroleum.enums.Status;
 import com.petroleum.enums.Step;
 import com.petroleum.mappers.InvoiceMapper;
-import com.petroleum.models.Invoice;
-import com.petroleum.models.Notification;
-import com.petroleum.models.Product;
-import com.petroleum.models.User;
+import com.petroleum.models.*;
 import com.petroleum.repositories.InvoiceRepository;
+import com.petroleum.repositories.StockRepository;
 import com.petroleum.repositories.SupplyRepository;
 import com.petroleum.repositories.UserRepository;
 import com.petroleum.services.EmailHelper;
@@ -30,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Controller
@@ -40,6 +39,7 @@ public class InvoiceController {
     private final InvoiceRepository invoiceRepository;
     private final UserRepository userRepository;
     private final SupplyRepository supplyRepository;
+    private final StockRepository stockRepository;
     private final InvoiceMapper invoiceMapper;
 
     @Value("${invoice.location}")
@@ -78,9 +78,9 @@ public class InvoiceController {
         Notification notification = new Notification("error", "bon introuvable.");
         try {
             Invoice invoice = invoiceRepository.findById(id).orElse(null);
-            String to = "";
-            String message = "";
             if(invoice != null){
+                String to;
+                String message;
                 if("submit".equals(action)){
                     invoice.setStep(Step.OPERATING_OFFICER);
                     invoice.setStatus(Status.PENDING);
@@ -93,9 +93,8 @@ public class InvoiceController {
                         to = userRepository.findFirstByRole(Role.ROLE_DISPATCHER).orElse(new User()).getEmail();
                         message = "Le bon d'enlèvement ID-" + invoice.getId() + " a été approuvé par la Direction Générale. Vous pouvez procéder à l'impression.";
                     }else{
-                        int volume = invoice.getVolume();
-                        Product product = invoice.getProduct();
-                        int available = supplyRepository.sumProductVolume(product.getId()) -  invoiceRepository.sumProductVolumeByStatus(product.getId(), Status.APPROVED);
+                        double volume = invoice.getVolume();
+                        double available = stockRepository.findFirstByDepotAndProduct(invoice.getLoadingDepot(), invoice.getProduct()).orElse(new Stock(invoice.getLoadingDepot(), invoice.getProduct())).getVolume();
                         if(available < volume){
                             invoice.setStatus(Status.WAITING);
                             invoice.setStep(Step.DIRECTOR);
@@ -112,7 +111,13 @@ public class InvoiceController {
                             .append("Cordialement.</div>");
                     EmailHelper.sendMail(to, "","Processus de validation d'un bon d'enlèvement", body.toString());
                 }
-                invoiceRepository.save(invoice);
+                invoice = invoiceRepository.save(invoice);
+                if(Status.APPROVED.equals(invoice.getStatus())){
+                    Stock stock = stockRepository.findFirstByDepotAndProduct(invoice.getLoadingDepot(), invoice.getProduct()).orElse(new Stock(invoice.getLoadingDepot(), invoice.getProduct()));
+                    stock.setVolume(stock.getVolume() - invoice.getVolume());
+                    stock.setUpdatedAt(LocalDateTime.now());
+                    stockRepository.save(stock);
+                }
                 notification.setType("success");
                 notification.setMessage("L'opération a été effectuée avec succès.");
             }
@@ -154,7 +159,7 @@ public class InvoiceController {
     }
 
     @PostMapping
-    public String save(@NonNull Invoice invoiceDto, @RequestParam long productId, RedirectAttributes attributes){
+    public String save(@NonNull Invoice invoiceDto, @RequestParam long productId, @RequestParam long loadingDepotId, RedirectAttributes attributes){
         Invoice invoice = invoiceDto;
         boolean creation = true;
         if(invoice.getId() != null){
@@ -163,6 +168,7 @@ public class InvoiceController {
             creation = false;
         }
         invoice.setProduct(em.getReference(Product.class, productId));
+        invoice.setLoadingDepot(em.getReference(Depot.class, loadingDepotId));
         invoice.normalize();
         Notification notification = new Notification();
         try {

@@ -33,9 +33,22 @@ function editUser(id, firstName, lastName, email, role) {
     $("#modal-create").modal('show');
 }
 
-function editProduct(id, name) {
+function editProduct(id, name, passage, passageTax, refinery, specialTax, transport, marking, markingTax) {
     $("#product-id").val(id);
     $("#product-name").val(name);
+    $("#passage").val(passage);
+    $("#passageTax").val(passageTax);
+    $("#refinery").val(refinery);
+    $("#specialTax").val(specialTax);
+    $("#transport").val(transport);
+    $("#marking").val(marking);
+    $("#markingTax").val(markingTax);
+    $("#modal-create").modal('show');
+}
+
+function editDepot(id, name) {
+    $("#depot-id").val(id);
+    $("#depot-name").val(name);
     $("#modal-create").modal('show');
 }
 
@@ -54,15 +67,36 @@ function editInvoice(id, client, product, volume, loadingDepot, transporter, dri
     $("#modal-create").modal('show');
 }
 
-function editSupply(id, product, volume) {
+function editTransfer(id, client, product, volume, loadingDepot, transporter, driver, loadingDate, truckNumber, deliveryPlace, receiptDate) {
+    $("#transfer-id").val(id);
+    $("#transfer-client").val(client);
+    $("#transfer-product").val(product);
+    $("#transfer-volume").val(volume);
+    $("#transfer-loading-depot").val(loadingDepot);
+    $("#transfer-transporter").val(transporter);
+    $("#transfer-driver").val(driver);
+    $("#transfer-loading-date").val(loadingDate);
+    $("#transfer-truck-number").val(truckNumber);
+    $("#transfer-delivery-place").val(deliveryPlace);
+    $("#transfer-receipt-date").val(receiptDate);
+    $("#modal-create").modal('show');
+}
+
+function editSupply(id, product, depot, volume) {
     $("#supply-id").val(id);
     $("#supply-product").val(product);
+    $("#supply-depot").val(product);
     $("#supply-volume").val(volume);
     $("#modal-create").modal('show');
 }
 
 function rejectInvoice(id) {
     $("#invoice-reject-id").val(id);
+    $("#modal-reject").modal('show');
+}
+
+function rejectTransfer(id) {
+    $("#transfer-reject-id").val(id);
     $("#modal-reject").modal('show');
 }
 
@@ -183,7 +217,7 @@ function showLogDetails(id, level){
     }
     $("#wrapper").LoadingOverlay('show', options);
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', ctx + '/log/details/' + id, true);
+    xhr.open('GET', ctx + '/logs/' + id, true);
     xhr.onload = function() {
         if(this.status === 200 && this.response !== undefined && this.response.length > 0) {
             $('#error-details').html(this.response);

@@ -1,10 +1,10 @@
 package com.petroleum.controllers;
 
 import com.petroleum.mappers.SupplyMapper;
-import com.petroleum.models.Notification;
-import com.petroleum.models.Product;
-import com.petroleum.models.Supply;
+import com.petroleum.models.*;
+import com.petroleum.repositories.DepotRepository;
 import com.petroleum.repositories.ProductRepository;
+import com.petroleum.repositories.StockRepository;
 import com.petroleum.repositories.SupplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -29,8 +30,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/supplies")
 public class SupplyController {
 
+    private final DepotRepository depotRepository;
     private final SupplyRepository supplyRepository;
     private final ProductRepository productRepository;
+    private final StockRepository stockRepository;
 
     private final SupplyMapper supplyMapper;
 
@@ -45,20 +48,26 @@ public class SupplyController {
         model.addAttribute("totalPages", supplies.getTotalPages());
         model.addAttribute("currentPage", p);
         model.addAttribute("products", productRepository.findAll());
+        model.addAttribute("depots", depotRepository.findAll());
         return "supplies";
     }
 
     @PostMapping
-    public String save(@NonNull Supply supplyDto, @RequestParam long productId, RedirectAttributes attributes){
+    public String save(@NonNull Supply supplyDto, @RequestParam long depotId, @RequestParam long productId, RedirectAttributes attributes){
         Supply supply = supplyDto;
         if(supply.getId() != null){
             supply = supplyRepository.findById(supply.getId()).orElse(supplyDto);
             supplyMapper.update(supply, supplyDto);
         }
+        supply.setDepot(em.getReference(Depot.class, depotId));
         supply.setProduct(em.getReference(Product.class, productId));
         Notification notification = new Notification();
         try {
-            supplyRepository.save(supply);
+            supply = supplyRepository.save(supply);
+            Stock stock = stockRepository.findFirstByDepotAndProduct(supply.getDepot(), supply.getProduct()).orElse(new Stock(supply.getDepot(), supply.getProduct()));
+            stock.setVolume(stock.getVolume() + supply.getVolume());
+            stock.setUpdatedAt(LocalDateTime.now());
+            stockRepository.save(stock);
             notification.setType("success");
             notification.setMessage("L'approvisionnement a été enregistré.");
         } catch (Exception e){
