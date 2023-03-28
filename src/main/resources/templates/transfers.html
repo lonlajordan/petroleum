@@ -108,7 +108,7 @@
                                         <td th:text="${transfer.id}"></td>
                                         <td th:text="${transfer.client}"></td>
                                         <td th:text="${transfer.product?.name}"></td>
-                                        <td th:text="${transfer.volume}"></td>
+                                        <td th:text="${#numbers.formatDecimal(transfer.volume,1,'WHITESPACE',2,'COMMA')}"></td>
                                         <td>
                                             <span th:text="${transfer.loadingDepot?.name}"></span><br><i th:text="${#temporals.format(transfer.loadingDate, 'dd-MM-yyyy')}"></i>
                                         </td>

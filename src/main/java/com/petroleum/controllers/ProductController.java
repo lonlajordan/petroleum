@@ -31,7 +31,7 @@ public class ProductController {
     @GetMapping
     public String getAll(Model model){
         List<Product> products = productRepository.findAllByOrderByNameAsc();
-        products.forEach(product -> product.setVolume(supplyRepository.sumProductVolume(product.getId()) -  invoiceRepository.sumProductVolumeByStatus(product.getId(), Status.APPROVED)));
+        //products.forEach(product -> product.setVolume(supplyRepository.sumProductVolume(product.getId()) -  invoiceRepository.sumProductVolumeByStatus(product.getId(), Status.APPROVED)));
         model.addAttribute("products", products);
         return "products";
     }

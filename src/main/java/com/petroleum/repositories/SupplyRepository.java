@@ -1,6 +1,5 @@
 package com.petroleum.repositories;
 
-import com.petroleum.models.Product;
 import com.petroleum.models.Supply;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,5 +13,5 @@ public interface SupplyRepository extends JpaRepository<Supply, Long>, PagingAnd
     Page<Supply> findAllByOrderByDateDesc(Pageable pageable);
     Page<Supply> findAllByProductIdOrderByDateDesc(long productId, Pageable pageable);
     @Query("SELECT coalesce(sum(s.volume), 0) FROM Supply s WHERE s.product.id = ?1")
-    int sumProductVolume(long productId);
+    double sumProductVolume(long productId);
 }

@@ -104,13 +104,13 @@
                                                 <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${product.id}">
                                             </td>
                                             <td th:text="${product.name}"></td>
-                                            <td th:text="${product.passage}"></td>
-                                            <td th:text="${product.passageTax}"></td>
-                                            <td th:text="${product.refinery}"></td>
-                                            <td th:text="${product.specialTax}"></td>
-                                            <td th:text="${product.transport}"></td>
-                                            <td th:text="${product.marking}"></td>
-                                            <td th:text="${product.markingTax}"></td>
+                                            <td th:text="${#numbers.formatDecimal(product.passage,1,'WHITESPACE',2,'COMMA')}"></td>
+                                            <td th:text="${#numbers.formatDecimal(product.passageTax,1,'WHITESPACE',2,'COMMA')}"></td>
+                                            <td th:text="${#numbers.formatDecimal(product.refinery,1,'WHITESPACE',2,'COMMA')}"></td>
+                                            <td th:text="${#numbers.formatDecimal(product.specialTax,1,'WHITESPACE',2,'COMMA')}"></td>
+                                            <td th:text="${#numbers.formatDecimal(product.transport,1,'WHITESPACE',2,'COMMA')}"></td>
+                                            <td th:text="${#numbers.formatDecimal(product.marking,1,'WHITESPACE',2,'COMMA')}"></td>
+                                            <td th:text="${#numbers.formatDecimal(product.markingTax,1,'WHITESPACE',2,'COMMA')}"></td>
                                             <td class="inline-actions fit-cell-content">
                                                 <div class="dropdown">
                                                     <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">

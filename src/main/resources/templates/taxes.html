@@ -1,0 +1,149 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
+    <title>Taxes</title>
+    <link rel="icon" type="image/x-ico" th:href="@{/images/logo.png}">
+    <link th:href="@{/fonts/inter.css}" rel="stylesheet"/>
+    <link th:href="@{/css/tabler.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/tabler-vendors.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/demo.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
+    <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
+    <link th:href="@{/css/petroleum.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="page" id="wrapper">
+    <div class="sticky-top">
+        <div th:replace="header.html"></div>
+        <div class="navbar-expand-md">
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <div class="navbar navbar-light">
+                    <div class="container-fluid">
+                        <div class="d-flex">
+                            <ol class="breadcrumb navbar-nav d-flex align-items-center flex-row" aria-label="breadcrumbs">
+                                <li class="breadcrumb-item">
+                                    <a th:href="@{/home}" >
+                                      <span class="d-lg-inline-block">
+                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                                      </span>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active"><a th:href="@{/stocks}">Récapitulatif des taxes</a></li>
+                            </ol>
+                        </div>
+                        <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
+                            <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+                            </span>
+                                <input type="text" value="" class="form-control" placeholder="Rechercher…" id="search-addon">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-wrapper">
+        <div class="container-fluid">
+            <!-- Page title -->
+            <div class="page-header d-print-none">
+                <div class="row g-2 align-items-center">
+                    <!-- Page title actions -->
+                    <div class="col-12 col-md-auto ms-auto">
+                        <div class="d-flex">
+                            <input type="month" class="form-control" onchange="monthlyReport(event)" th:value="${month}">
+                            <a th:href="@{/taxes/report(month=${month})}" class="ml-2 btn btn-success d-none d-sm-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                                    <path d="M7 11l5 5l5 -5"></path>
+                                    <path d="M12 4l0 12"></path>
+                                </svg>
+                                Télécharger
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-body">
+            <div class="container-fluid">
+                <div class="row row-deck row-cards">
+                    <div class="col-12 mt-1">
+                        <div class="card">
+                            <div id="table-default">
+                                <table class="table card-table table-vcenter text-nowrap datatable">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th class="text-center" th:each="product: ${products}" th:text="${product.name}"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="table-tbody">
+                                        <tr>
+                                            <th class="fit-cell-content border-right-thin text-center" rowspan="3">Taxe liée au bon de transfert</th>
+                                            <th class="fit-cell-content text-center">Passage dépôt</th>
+                                            <td class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal(product.passage * product.transferVolume,1,'WHITESPACE',2,'COMMA')}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="fit-cell-content border-left-thin text-center">TVA sur le passage dépôt</th>
+                                            <td class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal(product.passageTax * product.transferVolume,1,'WHITESPACE',2,'COMMA')}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="fit-cell-content border-left-thin text-center">Soutien à la raffinerie</th>
+                                            <td class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal(product.refinery * product.transferVolume,1,'WHITESPACE',2,'COMMA')}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2">Total redevance transfert</th>
+                                            <th class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal((product.passage + product.passageTax  + product.refinery) * product.transferVolume,1,'WHITESPACE',2,'COMMA')}"></th>
+                                        </tr>
+                                        <tr>
+                                            <th class="fit-cell-content border-right-thin text-center" rowspan="4">Taxe liée au bon d'enlèvement</th>
+                                            <th class="fit-cell-content text-center">Taxe spéciale</th>
+                                            <td class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal(product.specialTax * product.invoiceVolume,1,'WHITESPACE',2,'COMMA')}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="fit-cell-content border-left-thin text-center">Péréquation transport</th>
+                                            <td class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal(product.transport * product.invoiceVolume,1,'WHITESPACE',2,'COMMA')}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="fit-cell-content border-left-thin text-center">Marquage chimique</th>
+                                            <td class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal(product.marking * product.invoiceVolume,1,'WHITESPACE',2,'COMMA')}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="fit-cell-content border-left-thin text-center">TVA sur marquage</th>
+                                            <td class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal(product.markingTax * product.invoiceVolume,1,'WHITESPACE',2,'COMMA')}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2">Total redevance enlèvement</th>
+                                            <th class="border-left-thin text-center" th:each="product, y: ${products}" th:text="${#numbers.formatDecimal((product.specialTax + product.transport  + product.marking + product.markingTax) * product.invoiceVolume,1,'WHITESPACE',2,'COMMA')}"></th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="footer.html"></div>
+    </div>
+</div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/tabler.min.js}"></script>
+<script th:src="@{/js/demo.min.js}"></script>
+<script th:src="@{/js/js-snackbar.min.js}"></script>
+<script th:src="@{/js/dataTables.min.js}"></script>
+<script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
+<script th:src="@{/js/loadingoverlay.min.js}"></script>
+<script th:src="@{/js/petroleum.js}"></script>
+</body>
+</html>

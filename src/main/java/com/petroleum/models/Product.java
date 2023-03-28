@@ -24,14 +24,17 @@ public class Product {
     private double transport = 0;
     private double marking = 0;
     private double markingTax = 0;
-    @Transient
-    private double volume = 0;
     @OneToMany(mappedBy="product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Stock> stocks = new ArrayList<>();
     @OneToMany(mappedBy="product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invoice> invoices = new ArrayList<>();
     @OneToMany(mappedBy="product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Supply> supplies = new ArrayList<>();
+
+    @Transient
+    private double invoiceVolume = 0;
+    @Transient
+    private double transferVolume = 0;
 
     public Product() {
     }

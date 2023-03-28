@@ -89,7 +89,7 @@
                                         </th>
                                         <th>Produit</th>
                                         <th>Dépôt</th>
-                                        <th>Volume</th>
+                                        <th>Volume (en litre)</th>
                                         <th>Date d'approvisionnement</th>
                                         <th class="fit-cell-content"></th>
                                     </tr>
@@ -101,7 +101,7 @@
                                         </td>
                                         <td th:text="${supply.product?.name}"></td>
                                         <td th:text="${supply.depot?.name}"></td>
-                                        <td th:text="${supply.volume}"></td>
+                                        <td th:text="${#numbers.formatDecimal(supply.volume,1,'WHITESPACE',2,'COMMA')}"></td>
                                         <td th:text="${#temporals.format(supply.date, 'dd-MM-yyyy  HH:mm')}"></td>
                                         <td class="inline-actions fit-cell-content">
                                             <div class="dropdown">
