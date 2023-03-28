@@ -147,14 +147,14 @@
                             <span class="ml-2">Soumettre</span>
                           </a>
                           <th:block th:if="${invoice.canDecide(isDirector)}" sec:authorize="hasAnyRole('ROLE_OPERATING_OFFICER','ROLE_DIRECTOR', 'ROLE_ADMIN')">
-                            <a class="dropdown-item mw-0" th:href="@{'/invoices/' + ${invoice.id} + '/approve'}">
+                            <a class="dropdown-item mw-0" th:if="${!T(com.petroleum.enums.Status).APPROVED.equals(invoice.status)}" th:href="@{'/invoices/' + ${invoice.id} + '/approve'}">
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M5 12l5 5l10 -10"></path>
                               </svg>
                               <span class="ml-2">Approuver</span>
                             </a>
-                            <a class="dropdown-item mw-0" th:data-id="${invoice.id}" onclick="rejectInvoice(this.getAttribute('data-id'))" href="#">
+                            <a class="dropdown-item mw-0" th:if="${!T(com.petroleum.enums.Status).REJECTED.equals(invoice.status)}" th:data-id="${invoice.id}" onclick="rejectInvoice(this.getAttribute('data-id'))" href="#">
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M18 6l-12 12"></path>

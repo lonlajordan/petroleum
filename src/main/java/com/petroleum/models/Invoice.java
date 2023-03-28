@@ -49,6 +49,10 @@ public class Invoice {
     }
 
     public void normalize(){
-
+        if(this.client != null) this.client = this.client.trim().toUpperCase();
+        if(this.transporter != null) this.transporter = this.transporter.trim().toUpperCase();
+        if(this.truckNumber != null) this.truckNumber = this.truckNumber.trim().toUpperCase();
+        if(this.driver != null) this.driver = this.driver.trim().toUpperCase();
+        if(this.deliveryPlace != null) this.deliveryPlace = this.deliveryPlace.trim().toUpperCase();
     }
 }

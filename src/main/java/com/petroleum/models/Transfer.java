@@ -50,6 +50,9 @@ public class Transfer {
     }
 
     public void normalize(){
-
+        if(this.client != null) this.client = this.client.trim().toUpperCase();
+        if(this.transporter != null) this.transporter = this.transporter.trim().toUpperCase();
+        if(this.truckNumber != null) this.truckNumber = this.truckNumber.trim().toUpperCase();
+        if(this.driver != null) this.driver = this.driver.trim().toUpperCase();
     }
 }

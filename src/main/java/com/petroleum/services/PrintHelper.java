@@ -152,13 +152,12 @@ public class PrintHelper {
         File folder = new File(TAX_PATH);
         if (!folder.exists()) folder.mkdirs();
         File output = new File(folder.getAbsolutePath() + File.separator + "taxes_" + date.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH).toUpperCase() + "_" + date.getYear() + ".pdf");
-        PdfDocument pdf = new PdfDocument(new PdfReader(new File("src/main/resources/template.pdf")), new PdfWriter(output));
+        PdfDocument pdf = new PdfDocument(new PdfReader(new File("template.pdf")), new PdfWriter(output));
         PdfFont font = PdfFontFactory.createFont(FontConstants.HELVETICA);
         Document document = new Document(pdf).setFont(font).setFontSize(12);
         int n = products.size();
         NumberFormat formatter = NumberFormat.getInstance(Locale.FRENCH);
         formatter.setMaximumFractionDigits(2);
-        //DecimalFormat formatter = new DecimalFormat("#.##");
         Table table = new Table(new float[n+2]);
         table.setWidthPercent(100.0f);
         table.flushContent();

@@ -43,7 +43,6 @@ public class TransferController {
     private final ProductRepository productRepository;
     private final DepotRepository depotRepository;
     private final UserRepository userRepository;
-    private final SupplyRepository supplyRepository;
     private final StockRepository stockRepository;
     private final TransferMapper transferMapper;
 
@@ -183,7 +182,7 @@ public class TransferController {
     }
 
     @PostMapping
-    public String save(@NonNull Transfer transferDto, @RequestParam long productId, @RequestParam long loadingDepotId, @RequestParam long deliveryDepotId, RedirectAttributes attributes){
+    public String save(@NonNull Transfer transferDto, @RequestParam long productId, @RequestParam long loadingDepotId, @RequestParam long deliveryPlaceId, RedirectAttributes attributes){
         Transfer transfer = transferDto;
         boolean creation = true;
         if(transfer.getId() != null){
@@ -193,7 +192,7 @@ public class TransferController {
         }
         transfer.setProduct(em.getReference(Product.class, productId));
         transfer.setLoadingDepot(em.getReference(Depot.class, loadingDepotId));
-        transfer.setDeliveryPlace(em.getReference(Depot.class, deliveryDepotId));
+        transfer.setDeliveryPlace(em.getReference(Depot.class, deliveryPlaceId));
         transfer.normalize();
         Notification notification = new Notification();
         try {
