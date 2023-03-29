@@ -7,7 +7,6 @@ import com.petroleum.mappers.InvoiceMapper;
 import com.petroleum.models.*;
 import com.petroleum.repositories.InvoiceRepository;
 import com.petroleum.repositories.StockRepository;
-import com.petroleum.repositories.SupplyRepository;
 import com.petroleum.repositories.UserRepository;
 import com.petroleum.services.EmailHelper;
 import com.petroleum.services.PrintHelper;
@@ -38,7 +37,6 @@ public class InvoiceController {
 
     private final InvoiceRepository invoiceRepository;
     private final UserRepository userRepository;
-    private final SupplyRepository supplyRepository;
     private final StockRepository stockRepository;
     private final InvoiceMapper invoiceMapper;
 
@@ -185,7 +183,6 @@ public class InvoiceController {
             notification.setType("success");
             notification.setMessage("Le bon d'enlèvement a été enregistré.");
         } catch (Exception e){
-            e.printStackTrace();
             notification.setType("error");
             notification.setMessage("Erreur lors de l'enregistrement du bon d'enlèvement.");
         }

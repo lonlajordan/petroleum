@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"depot_id", "product_id"}, name = "unique_depot_product")})
+@Table(name = "abp_stock", uniqueConstraints = {@UniqueConstraint(columnNames = {"depot_id", "product_id"}, name = "unique_depot_product")})
 public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +21,9 @@ public class Stock {
     @ManyToOne(cascade={CascadeType.DETACH}, optional = false)
     @JoinColumn(name = "product_id")
     private Product product;
+    @Column(nullable = false)
     private double volume = 0;
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     public Stock() {

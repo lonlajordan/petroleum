@@ -97,9 +97,9 @@ public class TransferController {
         Notification notification = new Notification("error", "bon introuvable.");
         try {
             Transfer transfer = transferRepository.findById(id).orElse(null);
-            String to = "";
-            String message = "";
             if(transfer != null){
+                String to;
+                String message;
                 if("submit".equals(action)){
                     transfer.setStep(Step.OPERATING_OFFICER);
                     transfer.setStatus(Status.PENDING);
@@ -209,7 +209,6 @@ public class TransferController {
             notification.setType("success");
             notification.setMessage("Le bon de transfert a été enregistré.");
         } catch (Exception e){
-            e.printStackTrace();
             notification.setType("error");
             notification.setMessage("Erreur lors de l'enregistrement du bon de transfert.");
         }

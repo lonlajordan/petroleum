@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(name = "abp_transfer")
 public class Transfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

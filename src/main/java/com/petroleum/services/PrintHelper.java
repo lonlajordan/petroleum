@@ -1,5 +1,7 @@
 package com.petroleum.services;
 
+import com.ibm.icu.text.RuleBasedNumberFormat;
+import com.ibm.icu.util.ULocale;
 import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.kernel.color.Color;
 import com.itextpdf.kernel.font.PdfFont;
@@ -154,8 +156,9 @@ public class PrintHelper {
         File output = new File(folder.getAbsolutePath() + File.separator + "taxes_" + date.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH).toUpperCase() + "_" + date.getYear() + ".pdf");
         PdfDocument pdf = new PdfDocument(new PdfReader(new File("template.pdf")), new PdfWriter(output));
         PdfFont font = PdfFontFactory.createFont(FontConstants.HELVETICA);
-        Document document = new Document(pdf).setFont(font).setFontSize(12);
+        Document document = new Document(pdf).setFont(font).setFontSize(11);
         int n = products.size();
+        double total = 0;
         NumberFormat formatter = NumberFormat.getInstance(Locale.FRENCH);
         formatter.setMaximumFractionDigits(2);
         Table table = new Table(new float[n+2]);
@@ -228,12 +231,13 @@ public class PrintHelper {
         cell = new Cell(1, 2).add("Total redevance transfert");
         cell.setPaddingLeft(10.0f);
         cell.setBold();
-        cell.setBackgroundColor(Color.GRAY);
+        cell.setBackgroundColor(Color.ORANGE);
         table.addCell(cell);
         for(Product product: products){
+            total += product.getTransferVolume() * (product.getPassage() + product.getPassageTax() + product.getRefinery());
             cell = new Cell().add(formatter.format(product.getTransferVolume() * (product.getPassage() + product.getPassageTax() + product.getRefinery())));
             cell.setBold();
-            cell.setBackgroundColor(Color.GRAY);
+            cell.setBackgroundColor(Color.ORANGE);
             cell.setTextAlignment(TextAlignment.CENTER);
             cell.setVerticalAlignment(VerticalAlignment.MIDDLE);
             table.addCell(cell);
@@ -291,12 +295,26 @@ public class PrintHelper {
         cell = new Cell(1, 2).add("Total redevance enlèvement");
         cell.setPaddingLeft(10.0f);
         cell.setBold();
-        cell.setBackgroundColor(Color.GRAY);
+        cell.setBackgroundColor(Color.YELLOW);
         table.addCell(cell);
         for(Product product: products){
+            total += product.getInvoiceVolume() * (product.getSpecialTax() + product.getTransport() + product.getMarking() + product.getMarkingTax());
             cell = new Cell().add(formatter.format(product.getInvoiceVolume() * (product.getSpecialTax() + product.getTransport() + product.getMarking() + product.getMarkingTax())));
             cell.setBold();
-            cell.setBackgroundColor(Color.GRAY);
+            cell.setBackgroundColor(Color.YELLOW);
+            cell.setTextAlignment(TextAlignment.CENTER);
+            cell.setVerticalAlignment(VerticalAlignment.MIDDLE);
+            table.addCell(cell);
+        }
+        cell = new Cell(1, 2).add("Total redevance");
+        cell.setPaddingLeft(10.0f);
+        cell.setBold();
+        cell.setBackgroundColor(Color.RED);
+        table.addCell(cell);
+        for(Product product: products){
+            cell = new Cell().add(formatter.format(product.getTransferVolume() * (product.getPassage() + product.getPassageTax() + product.getRefinery()) + product.getInvoiceVolume() * (product.getSpecialTax() + product.getTransport() + product.getMarking() + product.getMarkingTax())));
+            cell.setBold();
+            cell.setBackgroundColor(Color.RED);
             cell.setTextAlignment(TextAlignment.CENTER);
             cell.setVerticalAlignment(VerticalAlignment.MIDDLE);
             table.addCell(cell);
@@ -305,6 +323,17 @@ public class PrintHelper {
         table.setMarginLeft(40);
         table.setMarginRight(20);
         document.add(table);
+        final com.ibm.icu.text.NumberFormat translator = new RuleBasedNumberFormat(ULocale.FRENCH, 1);
+        paragraph = new Paragraph("La somme totale des redevances pour le mois en cours est de");
+        paragraph.setTextAlignment(TextAlignment.CENTER);
+        paragraph.setBold();
+        paragraph.setMarginTop(20.0f);
+        document.add(paragraph);
+        paragraph = new Paragraph(translator.format(total).toUpperCase().replace("-", " ") + "   FRANCS CFA");
+        paragraph.setTextAlignment(TextAlignment.CENTER);
+        paragraph.setBold();
+        paragraph.setMarginTop(10.0f);
+        document.add(paragraph);
         document.close();
         return output;
     }

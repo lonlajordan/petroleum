@@ -47,8 +47,8 @@ public class SupplyController {
         model.addAttribute("supplies", supplies.get().collect(Collectors.toList()));
         model.addAttribute("totalPages", supplies.getTotalPages());
         model.addAttribute("currentPage", p);
-        model.addAttribute("products", productRepository.findAll());
-        model.addAttribute("depots", depotRepository.findAll());
+        model.addAttribute("products", productRepository.findAllByOrderByNameAsc());
+        model.addAttribute("depots", depotRepository.findAllByOrderByNameAsc());
         return "supplies";
     }
 
@@ -71,7 +71,6 @@ public class SupplyController {
             notification.setType("success");
             notification.setMessage("L'approvisionnement a été enregistré.");
         } catch (Exception e){
-            e.printStackTrace();
             notification.setType("error");
             notification.setMessage("Erreur lors de l'enregistrement de l'approvisionnement.");
         }

@@ -9,18 +9,25 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ab_user")
 @Getter
 @Setter
+@Table(
+    name = "abp_user",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"first_name", "last_name"}, name = "unique_name"),
+        @UniqueConstraint(columnNames = {"email"}, name = "unique_email")
+    }
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "first_name")
     private String firstName;
+    @Column(nullable = false, name = "last_name")
     private String lastName;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email = "";
     @Column(nullable = false)
     private String password;
@@ -29,7 +36,7 @@ public class User {
     private Role role = Role.ROLE_DISPATCHER;
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime lastLogin = LocalDateTime.now();
-    @Column(name = "actif")
+    @Column(name = "actif", nullable = false)
     private boolean enabled = true;
 
     public User() { }
