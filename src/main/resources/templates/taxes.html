@@ -58,7 +58,7 @@
                     <div class="col-12 col-md-auto ms-auto">
                         <div class="d-flex">
                             <input type="month" class="form-control" onchange="monthlyReport(event)" th:value="${month}">
-                            <a th:href="@{/taxes/report(month=${month})}" class="ml-2 btn btn-success d-none d-sm-inline-block">
+                            <a th:href="@{/taxes/report(month=${month})}" class="preload ml-2 btn btn-success d-none d-sm-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
@@ -145,5 +145,11 @@
 <script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
 <script th:src="@{/js/loadingoverlay.min.js}"></script>
 <script th:src="@{/js/petroleum.js}"></script>
+<script>
+    $('.preload').click(function () {
+        console.log("i am here");
+        $('#wrapper').LoadingOverlay('show', options);
+    });
+</script>
 </body>
 </html>

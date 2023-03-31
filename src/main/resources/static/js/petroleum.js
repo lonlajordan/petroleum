@@ -117,9 +117,7 @@ function invoke(action, object = 'user') {
             timeout: 3000,
         });
     }else{
-        if(action === 'download'){
-            downloadFile(values, '/download/files');
-        }else if(action === 'delete'){
+        if(action === 'delete'){
             let objectName = 'élément';
             switch (object) {
                 case 'user':
@@ -146,76 +144,10 @@ function invoke(action, object = 'user') {
     }
 }
 
-function downloadFile(paths, url) {
-    $("#wrapper").LoadingOverlay('show', options);
-    let xhr = new XMLHttpRequest();
-    let params = paths.map(path => 'path=' + path).join('&');
-    xhr.open('GET', ctx + url + '?' + params, true);
-    xhr.responseType = 'arraybuffer';
-    xhr.onload = function() {
-        if(this.status === 200) {
-            let filename = '';
-            let disposition = xhr.getResponseHeader('Content-Disposition');
-            if (disposition && disposition.indexOf('attachment') !== -1) {
-                let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                let matches = filenameRegex.exec(disposition);
-                if (matches !== null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-            }
-            let type = xhr.getResponseHeader('Content-Type');
-            let blob = new Blob([this.response],  {type: type});
-            //workaround for IE
-            if(typeof window.navigator.msSaveBlob != 'undefined') {
-                window.navigator.msSaveBlob(blob, filename);
-            } else {
-                let URL = window.URL || window.webkitURL;
-                let download_URL = URL.createObjectURL(blob);
-                if(filename) {
-                    let a_link = document.createElement('a');
-                    if(typeof a_link.download == 'undefined') {
-                        window.location = download_URL;
-                    }else {
-                        a_link.href = download_URL;
-                        a_link.download = filename;
-                        document.body.appendChild(a_link);
-                        a_link.click();
-                    }
-                }else {
-                    window.location = download_URL;
-                }
-                setTimeout(function() {
-                    URL.revokeObjectURL(download_URL);
-                }, 10000);
-            }
-        }else {
-            new SnackBar({
-                message: 'Téléchargement échoué',
-                status: 'error',
-                dismissible: false,
-                position: 'bc',
-                fixed: true,
-                timeout: 3000,
-            });
-        }
-        $('#wrapper').LoadingOverlay('hide', options);
-        $('#wrapper').scrollTop(0);
-    };
-    xhr.setRequestHeader('Content-type', 'application/*');
-    xhr.send();
-}
 
 function monthlyReport(e){
     window.location = ctx + '/taxes?month=' + e.target.value;
 }
-
-$.ajaxSetup({
-    beforeSend: function () {
-        $("#wrapper").LoadingOverlay('show', options);
-    },
-    complete: function () {
-        $('#wrapper').LoadingOverlay('hide', options);
-        $('#wrapper').scrollTop(0);
-    }
-})
 
 function initPagination(){
     let paginator = $('#pagination');
@@ -232,10 +164,6 @@ function initPagination(){
             }
         })
     }
-}
-
-function fetch(url){
-    $.get(url, function (data) {});
 }
 
 $(document).ready( function () {

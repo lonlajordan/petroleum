@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -151,6 +150,11 @@ public class PrintHelper {
     }
 
     public static File report(List<Product> products, LocalDate date) throws IOException {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         File folder = new File(TAX_PATH);
         if (!folder.exists()) folder.mkdirs();
         File output = new File(folder.getAbsolutePath() + File.separator + "taxes_" + date.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH).toUpperCase() + "_" + date.getYear() + ".pdf");
@@ -328,6 +332,11 @@ public class PrintHelper {
         paragraph.setTextAlignment(TextAlignment.CENTER);
         paragraph.setBold();
         paragraph.setMarginTop(20.0f);
+        document.add(paragraph);
+        paragraph = new Paragraph(formatter.format(total));
+        paragraph.setTextAlignment(TextAlignment.CENTER);
+        paragraph.setBold();
+        paragraph.setMarginTop(10.0f);
         document.add(paragraph);
         paragraph = new Paragraph(translator.format(total).toUpperCase().replace("-", " ") + "   FRANCS CFA");
         paragraph.setTextAlignment(TextAlignment.CENTER);
