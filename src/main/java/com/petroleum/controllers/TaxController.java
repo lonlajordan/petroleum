@@ -5,7 +5,7 @@ import com.petroleum.models.*;
 import com.petroleum.repositories.*;
 import com.petroleum.services.PrintHelper;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -37,37 +37,31 @@ public class TaxController {
 
     @GetMapping
     public String getAll(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month, Model model){
-        LocalDate date = month == null ? LocalDate.now() : month.atDay(1);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, date.getYear());
-        calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
-        LocalDateTime start = date.withDayOfMonth(1).atTime(LocalTime.MIN);
-        LocalDateTime end = date.withDayOfMonth(calendar.getActualMaximum(Calendar.DATE)).atTime(LocalTime.MAX);
+        if(month == null) month = YearMonth.now();
+        LocalDateTime start = month.atDay(1).atTime(LocalTime.MIN);
+        LocalDateTime end = month.atEndOfMonth().atTime(LocalTime.MAX);
         List<Product> products = productRepository.findAllByOrderByNameAsc();
         products.forEach(product -> {
             product.setInvoiceVolume(invoiceRepository.findAllByProductAndStatusAndDateBetween(product, Status.APPROVED, start, end).stream().map(Invoice::getVolume).reduce(Double::sum).orElse(0.0));
             product.setTransferVolume(transferRepository.findAllByProductAndStatusAndDateBetween(product, Status.APPROVED, start, end).stream().map(Transfer::getVolume).reduce(Double::sum).orElse(0.0));
         });
         model.addAttribute("products", products);
-        model.addAttribute("month", date.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        model.addAttribute("month", month.format(DateTimeFormatter.ofPattern("yyyy-MM")));
         return "taxes";
     }
 
     @GetMapping("/report")
     public void downloadReport(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month, HttpServletResponse response) {
         try {
-            LocalDate date = month == null ? LocalDate.now() : month.atDay(1);
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.YEAR, date.getYear());
-            calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
-            LocalDateTime start = date.withDayOfMonth(1).atTime(LocalTime.MIN);
-            LocalDateTime end = date.withDayOfMonth(calendar.getActualMaximum(Calendar.DATE)).atTime(LocalTime.MAX);
+            if(month == null) month = YearMonth.now();
+            LocalDateTime start = month.atDay(1).atTime(LocalTime.MIN);
+            LocalDateTime end = month.atEndOfMonth().atTime(LocalTime.MAX);
             List<Product> products = productRepository.findAllByOrderByNameAsc();
             products.forEach(product -> {
                 product.setInvoiceVolume(invoiceRepository.findAllByProductAndStatusAndDateBetween(product, Status.APPROVED, start, end).stream().map(Invoice::getVolume).reduce(Double::sum).orElse(0.0));
                 product.setTransferVolume(transferRepository.findAllByProductAndStatusAndDateBetween(product, Status.APPROVED, start, end).stream().map(Transfer::getVolume).reduce(Double::sum).orElse(0.0));
             });
-            File file = PrintHelper.report(products, date);
+            File file = PrintHelper.report(products, month);
             if(file.exists()){
                 InputStream inputStream = new InputStreamResource(new FileInputStream(file)).getInputStream();
                 response.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));

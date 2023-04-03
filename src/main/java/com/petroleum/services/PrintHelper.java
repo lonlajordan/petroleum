@@ -25,11 +25,10 @@ import org.springframework.context.annotation.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -145,19 +144,13 @@ public class PrintHelper {
         paragraph = new Paragraph(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(transfer.getReceiptDate()));
         paragraph.setFixedPosition(184 * ratio, 236 * ratio, 300);
         document.add(paragraph);
-
         document.close();
     }
 
-    public static File report(List<Product> products, LocalDate date) throws IOException {
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public static File report(List<Product> products, YearMonth month) throws IOException {
         File folder = new File(TAX_PATH);
         if (!folder.exists()) folder.mkdirs();
-        File output = new File(folder.getAbsolutePath() + File.separator + "taxes_" + date.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH).toUpperCase() + "_" + date.getYear() + ".pdf");
+        File output = new File(folder.getAbsolutePath() + File.separator + "taxes_" + month.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH).toUpperCase() + "_" + month.getYear() + ".pdf");
         PdfDocument pdf = new PdfDocument(new PdfReader(new File("template.pdf")), new PdfWriter(output));
         PdfFont font = PdfFontFactory.createFont(FontConstants.HELVETICA);
         Document document = new Document(pdf).setFont(font).setFontSize(11);
@@ -174,10 +167,7 @@ public class PrintHelper {
         paragraph.setMarginTop(120.0f);
         paragraph.setMarginBottom(10.0f);
         document.add(paragraph);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, date.getYear());
-        calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
-        paragraph = new Paragraph("DU 1ER AU " + calendar.getActualMaximum(Calendar.DATE) + " " + date.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH).toUpperCase() + " " + date.getYear());
+        paragraph = new Paragraph("DU 1ER AU " + month.atEndOfMonth().getDayOfMonth() + " " + month.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH).toUpperCase() + " " + month.getYear());
         paragraph.setTextAlignment(TextAlignment.CENTER);
         paragraph.setBold();
         paragraph.setMarginBottom(20.0f);

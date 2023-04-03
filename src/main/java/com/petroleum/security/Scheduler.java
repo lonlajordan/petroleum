@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.Collections;
 import java.util.List;
@@ -50,7 +51,7 @@ public class Scheduler {
             product.setTransferVolume(transferRepository.findAllByProductAndStatusAndDateBetween(product, Status.APPROVED, start, end).stream().map(Transfer::getVolume).reduce(Double::sum).orElse(0.0));
         });
         try {
-            File output = PrintHelper.report(products, start.toLocalDate());
+            File output = PrintHelper.report(products, YearMonth.now().minusMonths(1));
             String attachment = output.getAbsolutePath();
             String to = userRepository.findFirstByRole(Role.ROLE_DIRECTOR).orElse(new User()).getEmail();
             String cc = userRepository.findFirstByRole(Role.ROLE_OPERATING_OFFICER).orElse(new User()).getEmail();
