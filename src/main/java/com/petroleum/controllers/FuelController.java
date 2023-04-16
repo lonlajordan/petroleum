@@ -139,7 +139,7 @@ public class FuelController {
                 hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
                 BitMatrix mat = new QRCodeWriter().encode(applicationUrl + servletContext.getContextPath() + "/validate?number=" + fuel.getNumber() + "&code=" + fuel.getCode(), BarcodeFormat.QR_CODE,100,100, hints);
                 BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(mat);
-                BufferedImage overly = ImageIO.read(new File("src/main/resources/qr_logo.png"));
+                BufferedImage overly = ImageIO.read(new File("qr_logo.png"));
 
                 Image tmp = overly.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
                 BufferedImage resized = new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB);
