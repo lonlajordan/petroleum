@@ -12,6 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -55,10 +56,6 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.csrf().disable()
-            .sessionManagement()
-                .maximumSessions(1).expiredUrl("/").and()
-                .invalidSessionUrl("/")
-                .and()
             .exceptionHandling()
                 .accessDeniedPage("/error/403")
                 .and()
@@ -75,9 +72,9 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new AuthenticationLogoutSuccessHandler())
                 .logoutSuccessUrl("/")
                 .invalidateHttpSession(true)
-                .and()
+            .and()
             .authorizeRequests()
-                .antMatchers("/", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
+                .antMatchers("/", "/validate", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
                 .antMatchers("/users/**").hasAuthority("ROLE_ADMIN")
                 .antMatchers("/supplies/**", "/products/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DIRECTOR")
                 .anyRequest().authenticated();

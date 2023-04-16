@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
-    <title>Approvisionnements | Petroleum</title>
+    <title>Bons de carburant | Petroleum</title>
     <link rel="icon" type="image/x-ico" th:href="@{/images/logo.png}">
     <link th:href="@{/fonts/inter.css}" rel="stylesheet"/>
     <link th:href="@{/css/tabler.min.css}" rel="stylesheet"/>
@@ -33,7 +33,7 @@
                                       </span>
                                     </a>
                                 </li>
-                                <li class="breadcrumb-item active"><a th:href="@{/supplies}">Liste des approvisionnements</a></li>
+                                <li class="breadcrumb-item active"><a th:href="@{/fuels}">Liste des bons de carburant</a></li>
                             </ol>
                         </div>
                         <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
@@ -55,7 +55,7 @@
             <div class="page-header d-print-none">
                 <div class="row g-2 align-items-center">
                     <div class="col">
-                        <a th:if="${!#lists.isEmpty(supplies)}" href="javascript:reverseSelection();" class="btn btn-white" title="Inverser la sélection">
+                        <a th:if="${!#lists.isEmpty(fuels)}" href="javascript:reverseSelection();" class="btn btn-white" title="Inverser la sélection">
                             <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3.5 5.5l1.5 1.5l2.5 -2.5" /><path d="M3.5 11.5l1.5 1.5l2.5 -2.5" /><path d="M3.5 17.5l1.5 1.5l2.5 -2.5" /><line x1="11" y1="6" x2="20" y2="6" /><line x1="11" y1="12" x2="20" y2="12" /><line x1="11" y1="18" x2="20" y2="18" /></svg>
                         </a>
                     </div>
@@ -87,33 +87,59 @@
                                         <th class="w-1">
                                             <input class="form-check-input m-0 align-middle" type="checkbox">
                                         </th>
+                                        <th>N°</th>
                                         <th>Produit</th>
-                                        <th>Dépôt</th>
-                                        <th>Volume (en litre)</th>
-                                        <th>Date d'approvisionnement</th>
+                                        <th>Prix (en FCFA)</th>
+                                        <th>Date d'émission</th>
+                                        <th>Code</th>
+                                        <th>Statut</th>
                                         <th class="fit-cell-content"></th>
                                     </tr>
                                     </thead>
                                     <tbody class="table-tbody">
-                                    <tr th:each="supply: ${supplies}">
+                                    <tr th:each="fuel: ${fuels}">
                                         <td>
-                                            <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${supply.id}">
+                                            <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${fuel.id}">
                                         </td>
-                                        <td th:text="${supply.product?.name}"></td>
-                                        <td th:text="${supply.depot?.name}"></td>
-                                        <td th:text="${#numbers.formatDecimal(supply.volume,1,'WHITESPACE',2,'COMMA')}"></td>
-                                        <td th:text="${#temporals.format(supply.date, 'dd-MM-yyyy  HH:mm')}"></td>
+                                        <td th:text="${fuel.number}"></td>
+                                        <td th:text="${fuel.product?.name}"></td>
+                                        <td th:text="${#numbers.formatDecimal(fuel.amount,1,'WHITESPACE',2,'COMMA')}"></td>
+                                        <td th:text="${#temporals.format(fuel.date, 'dd-MM-yyyy  HH:mm')}"></td>
+                                        <td th:text="${fuel.code}"></td>
+                                        <td th:if="${fuel.enabled}">
+                                            <span class="badge bg-success me-1"></span> Actif
+                                        </td>
+                                        <td th:unless="${fuel.enabled}">
+                                            <span class="badge bg-danger me-1"></span> Désactivé
+                                        </td>
                                         <td class="inline-actions fit-cell-content">
                                             <div class="dropdown">
                                                 <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
                                                     <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
                                                 </a>
                                                 <div class="dropdown-menu mw-0">
-                                                    <a class="dropdown-item mw-0" th:data-id="${supply.id}" th:data-product="${supply.product?.id}" th:data-depot="${supply.depot?.id}" th:data-volume="${supply.volume}" href="#" onclick="editSupply(this.getAttribute('data-id'), this.getAttribute('data-product'), this.getAttribute('data-depot'), this.getAttribute('data-volume'))">
+                                                    <a th:if="${fuel.enabled}" class="dropdown-item mw-0" th:href="@{'/fuels/' + ${fuel.id} + '/toggle'}">
+                                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="8" cy="12" r="2" /><rect x="2" y="6" width="20" height="12" rx="6" /></svg>
+                                                        <span class="ml-2">Désactiver</span>
+                                                    </a>
+                                                    <a th:unless="${fuel.enabled}" class="dropdown-item mw-0" th:href="@{'/fuels/' + ${fuel.id} + '/toggle'}">
+                                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="16" cy="12" r="2" /><rect x="2" y="6" width="20" height="12" rx="6" /></svg>
+                                                        <span class="ml-2">Activer</span>
+                                                    </a>
+                                                    <a class="dropdown-item mw-0" th:data-id="${fuel.id}" th:data-number="${fuel.number}" th:data-product="${fuel.product?.id}" th:data-amount="${fuel.amount}" href="#" onclick="editFuel(this.getAttribute('data-id'), this.getAttribute('data-number'), this.getAttribute('data-product'), this.getAttribute('data-amount'))">
                                                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
                                                         <span class="ml-2">Modifier</span>
                                                     </a>
-                                                    <a class="dropdown-item mw-0 text-danger" th:data-id="${supply.id}" onclick="deleteItem(this.getAttribute('data-id'), 'supplies/delete')" href="#">
+                                                    <a class="dropdown-item mw-0" th:href="@{/fuels/download/{id}(id=${fuel.id})}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                                                            <path d="M7 11l5 5l5 -5"></path>
+                                                            <path d="M12 4l0 12"></path>
+                                                        </svg>
+                                                        <span class="ml-2">Télécharger</span>
+                                                    </a>
+                                                    <a class="dropdown-item mw-0 text-danger" th:data-id="${fuel.id}" onclick="deleteItem(this.getAttribute('data-id'), 'fuels/delete')" href="#">
                                                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                                                         <span class="ml-2">Supprimer</span>
                                                     </a>
@@ -125,7 +151,7 @@
                                 </table>
                             </div>
                             <div th:if="${totalPages > 1}" class="card-footer py-2 d-flex align-items-center">
-                                <div id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="supplies"></div>
+                                <div id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="fuels"></div>
                             </div>
                         </div>
                     </div>
@@ -143,24 +169,22 @@
                 <h5 class="modal-title">Formulaire</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form name="saveSupply" th:action="@{/supplies}" method="post">
-                <input id="supply-id" type="hidden" name="id">
+            <form name="saveFuel" th:action="@{/fuels}" method="post">
+                <input id="fuel-id" type="hidden" name="id">
                 <div class="modal-body">
                     <div class="mb-3">
+                        <label class="form-label required">Numéro</label>
+                        <input type="number" min="1" step="1" class="form-control" id="fuel-number" name="number" required>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label required">Produit</label>
-                        <select class="form-select" name="productId" id="supply-product" required>
+                        <select class="form-select" name="productId" id="fuel-product" required>
                             <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.name}"></option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label required">Dépôt</label>
-                        <select class="form-select" name="depotId" id="supply-depot" required>
-                            <option th:each="depot : ${depots}" th:value="${depot.id}" th:text="${depot.name}"></option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required">Volume (en litre)</label>
-                        <input type="number" min="1" class="form-control" id="supply-volume" name="volume" required>
+                        <label class="form-label required">Prix (en FCFA)</label>
+                        <input type="number" min="1" class="form-control" id="fuel-amount" name="amount" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -184,10 +208,10 @@
             <div class="modal-body text-center py-4">
                 <svg class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
                 <h3>Êtes vous sûr ?</h3>
-                <div class="text-muted" id="delete-message">Voulez-vous vraiment supprimer ces approvisionnements ?</div>
+                <div class="text-muted" id="delete-message">Voulez-vous vraiment supprimer ces bons de carburants ?</div>
             </div>
             <div class="modal-footer">
-                <form th:action="@{/supplies/delete}" method="post">
+                <form th:action="@{/fuels/delete}" method="post">
                     <div id="delete-objects"></div>
                     <div class="w-100">
                         <div class="row">

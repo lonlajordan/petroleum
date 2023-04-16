@@ -51,7 +51,7 @@ public class InvoiceController {
             Invoice invoice = invoiceRepository.findById(id).orElse(null);
             if(invoice != null){
                 File directory = new File(invoiceLocation);
-                if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating ticket excel folder");
+                if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating invoice folder");
                 File output = new File(directory.getAbsolutePath() + File.separator + "bon_enlevement_" + id + ".pdf");
                 PrintHelper.print(invoice, output);
                 InputStream inputStream = new InputStreamResource(new FileInputStream(output)).getInputStream();

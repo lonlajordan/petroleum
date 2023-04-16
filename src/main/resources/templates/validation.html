@@ -1,0 +1,65 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
+    <title>Bon de carburant | Petroleum</title>
+    <link rel="icon" type="image/x-ico" th:href="@{/images/logo.png}">
+    <link th:href="@{/fonts/inter.css}" rel="stylesheet"/>
+    <link th:href="@{/css/tabler.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/tabler-vendors.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/petroleum.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="page" id="wrapper">
+    <div class="page-wrapper">
+        <div class="page-body d-flex justify-content-center align-items-center flex-grow-1">
+            <div class="container-xl">
+                <div class="row row-cards d-flex justify-content-center">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card card-md">
+                            <div class="ribbon ribbon-top ribbon-bookmark" th:classappend="${#bools.isTrue(fuel?.enabled) ? 'bg-green' : 'bg-danger'}">
+                                <!-- Download SVG icon from http://tabler-icons.io/i/star -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg>
+                            </div>
+                            <div class="card-body text-center">
+                                <div th:if="${fuel}" class="text-uppercase text-muted font-weight-medium" th:text="${fuel?.product?.name}"></div>
+                                <div th:if="${fuel}" class="display-8 fw-bold my-3"><span th:text="${#numbers.formatDecimal(fuel?.amount,1,'WHITESPACE',2,'COMMA')}"></span> FCFA</div>
+                                <ul class="list-unstyled lh-lg">
+                                    <li>
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/check -->
+                                        <svg th:if="${fuel}" xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
+                                        <svg th:unless="${fuel}" xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        Code : <strong th:text="${fuel != null ? 'valide' : 'invalide'}"></strong>
+                                    </li>
+                                    <li>
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/check -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
+                                        Numéro : <strong th:text="${#request.getParameter('number')}"></strong>
+                                    </li>
+                                    <li th:if="${fuel}">
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/x -->
+                                        <svg th:if="${fuel.enabled}" xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
+                                        <svg th:unless="${fuel.enabled}" xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        Statut : <strong th:text="${fuel.enabled ? 'actif' : 'désactivé'}"></strong>
+                                    </li>
+                                </ul>
+                                <div class="text-center mt-4">
+                                    <a href="https://www.abp-petroleum.com" class="btn w-100" th:classappend="${#bools.isTrue(fuel?.enabled) ? 'bg-green' : 'bg-danger'}">Aller sur le site</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/tabler.min.js}"></script>
+<script th:src="@{/js/demo.min.js}"></script>
+</body>
+</html>
