@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .usernameParameter("email")
                 .loginPage("/")
                 .loginProcessingUrl("/")
-                .defaultSuccessUrl("/home", true)
+                .defaultSuccessUrl("/home", false)
                 .failureHandler(new AuthenticationFailureHandler())
                 .and()
             .logout()
@@ -74,7 +74,7 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
             .and()
             .authorizeRequests()
-                .antMatchers("/", "/validate", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
+                .antMatchers("/", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
                 .antMatchers("/users/**").hasAuthority("ROLE_ADMIN")
                 .antMatchers("/supplies/**", "/products/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DIRECTOR")
                 .anyRequest().authenticated();
