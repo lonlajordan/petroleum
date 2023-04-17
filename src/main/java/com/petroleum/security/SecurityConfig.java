@@ -12,7 +12,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -63,7 +62,7 @@ public class SecurityConfig {
                 .usernameParameter("email")
                 .loginPage("/")
                 .loginProcessingUrl("/")
-                .defaultSuccessUrl("/home", false)
+                .defaultSuccessUrl("/home", true)
                 .failureHandler(new AuthenticationFailureHandler())
                 .and()
             .logout()
@@ -74,7 +73,7 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
             .and()
             .authorizeRequests()
-                .antMatchers("/", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
+                .antMatchers("/", "/validate", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
                 .antMatchers("/users/**").hasAuthority("ROLE_ADMIN")
                 .antMatchers("/supplies/**", "/products/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DIRECTOR")
                 .anyRequest().authenticated();
