@@ -12,6 +12,4 @@ import org.springframework.stereotype.Repository;
 public interface SupplyRepository extends JpaRepository<Supply, Long>, PagingAndSortingRepository<Supply, Long> {
     Page<Supply> findAllByOrderByDateDesc(Pageable pageable);
     Page<Supply> findAllByProductIdOrderByDateDesc(long productId, Pageable pageable);
-    @Query("SELECT coalesce(sum(s.volume), 0) FROM Supply s WHERE s.product.id = ?1")
-    double sumProductVolume(long productId);
 }
