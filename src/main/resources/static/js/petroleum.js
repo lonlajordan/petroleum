@@ -90,10 +90,9 @@ function editSupply(id, product, depot, volume) {
     $("#modal-create").modal('show');
 }
 
-function editFuel(id, number, product, amount) {
+function editFuel(id, number, amount) {
     $("#fuel-id").val(id);
     $("#fuel-number").val(number);
-    $("#fuel-product").val(product);
     $("#fuel-amount").val(amount);
     $("#modal-create").modal('show');
 }

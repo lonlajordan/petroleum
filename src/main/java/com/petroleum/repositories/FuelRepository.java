@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface FuelRepository extends JpaRepository<Fuel, Long>, PagingAndSortingRepository<Fuel, Long> {
     Page<Fuel> findAllByOrderByDateDesc(Pageable pageable);
-    Page<Fuel> findAllByProductIdOrderByDateDesc(long fuelId, Pageable pageable);
     Fuel findByCodeAndNumber(String code, int number);
+    List<Fuel> findAllByAmountOrderByNumberAsc(double amount);
 }

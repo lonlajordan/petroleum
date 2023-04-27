@@ -57,3 +57,4 @@ build/
 /libs/
 /out/
 /src/main/resources/application-dev.properties
+/codes/

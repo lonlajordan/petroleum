@@ -9,9 +9,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.petroleum.mappers.FuelMapper;
 import com.petroleum.models.Fuel;
 import com.petroleum.models.Notification;
-import com.petroleum.models.Product;
 import com.petroleum.repositories.FuelRepository;
-import com.petroleum.repositories.ProductRepository;
 import com.petroleum.utils.TextUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
@@ -29,8 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.imageio.ImageIO;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
@@ -39,7 +35,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,7 +46,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/fuels")
 public class FuelController {
     private final FuelRepository fuelRepository;
-    private final ProductRepository productRepository;
     private final ServletContext servletContext;
     private final FuelMapper fuelMapper;
 
@@ -57,39 +54,52 @@ public class FuelController {
     @Value("${application.url}")
     private String applicationUrl;
 
-    @PersistenceContext
-    private EntityManager em;
-
     @GetMapping
-    public String getSupplies(@RequestParam(required = false, defaultValue = "1") int p, @RequestParam(required = false) Long productId, Model model){
+    public String getSupplies(@RequestParam(required = false, defaultValue = "1") int p, Model model){
         Pageable pageable = PageRequest.of(p  - 1, 1000);
-        Page<Fuel> fuels = productId == null ? fuelRepository.findAllByOrderByDateDesc(pageable) : fuelRepository.findAllByProductIdOrderByDateDesc(productId, pageable);
+        Page<Fuel> fuels = fuelRepository.findAllByOrderByDateDesc(pageable);
         model.addAttribute("fuels", fuels.get().collect(Collectors.toList()));
         model.addAttribute("totalPages", fuels.getTotalPages());
         model.addAttribute("currentPage", p);
-        model.addAttribute("products", productRepository.findAllByOrderByNameAsc());
         return "fuels";
     }
 
+    /*
+    @GetMapping("generate")
+    public String generate(){
+        List<Fuel> fuels = new ArrayList<>();
+        for(int i = 1; i <= 5000; i++){
+            Fuel fuel = new Fuel();
+            fuel.setAmount(10000);
+            fuel.setNumber(i);
+            fuel.setCode(TextUtils.generateType1UUID().toString());
+            fuels.add(fuel);
+        }
+        fuelRepository.saveAll(fuels);
+        return "redirect:/fuels";
+    }*/
+
     @PostMapping
-    public String save(@NonNull Fuel fuelDto, @RequestParam long productId, RedirectAttributes attributes){
+    public String save(@NonNull Fuel fuelDto, @RequestParam(required = false, defaultValue = "1") int quantity, RedirectAttributes attributes){
         Fuel fuel = fuelDto;
-        if(fuel.getId() != null){
+        Notification notification = new Notification();
+        if(quantity == 1 && fuel.getId() != null){
             fuel = fuelRepository.findById(fuel.getId()).orElse(fuelDto);
             fuelMapper.update(fuel, fuelDto);
         }
-        if(StringUtils.isBlank(fuel.getCode())) fuel.setCode(TextUtils.generateType1UUID().toString());
-        fuel.setProduct(em.getReference(Product.class, productId));
-        Notification notification = new Notification();
         try {
+            if(quantity == 1 && StringUtils.isBlank(fuel.getCode())) fuel.setCode(TextUtils.generateType1UUID().toString());
+            List<Fuel> fuels = Collections.nCopies(quantity, fuel);
+            fuels.forEach(f -> f.setCode(TextUtils.generateType1UUID().toString()));
+            fuels = fuelRepository.saveAll(fuels);
+            int n = fuels.size();
             fuelRepository.save(fuel);
             notification.setType("success");
-            notification.setMessage("Le bon de carburant a été enregistré.");
+            notification.setMessage(n == 1 ? "Le bon de carburant a été enregistré." : "Les bons de carburant ont été enregistrés.");
         } catch (Exception e){
             notification.setType("error");
-            notification.setMessage("Erreur lors de l'enregistrement du bon de carburant.");
+            notification.setMessage("Erreur lors de l'enregistrement.");
         }
-
         attributes.addFlashAttribute("notification", notification);
         return "redirect:/fuels";
     }
@@ -124,12 +134,12 @@ public class FuelController {
         return "redirect:/fuels";
     }
 
-    @GetMapping("download/{id}")
-    public void downloadReport(@PathVariable long id, HttpServletResponse response) {
+    @GetMapping("print")
+    public void printQRCodes() {
         try {
-            Fuel fuel = fuelRepository.findById(id).orElse(null);
-            if(fuel != null){
-                File directory = new File(qrCodeLocation);
+            List<Fuel> fuels = fuelRepository.findAllByAmountOrderByNumberAsc(10000);
+            for(Fuel fuel: fuels){
+                File directory = new File(qrCodeLocation+"/10000");
                 if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
                 File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -157,6 +167,21 @@ public class FuelController {
                 g.drawImage(overly, deltaWidth / 2, deltaHeight / 2, null);
                 ImageIO.write(combined, "png", os);
                 Files.copy( new ByteArrayInputStream(os.toByteArray()), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @GetMapping("download/{id}")
+    public void downloadReport(@PathVariable long id, HttpServletResponse response) {
+        try {
+            Fuel fuel = fuelRepository.findById(id).orElse(null);
+            if(fuel != null){
+                int amount = (int) fuel.getAmount();
+                File directory = new File(qrCodeLocation + "/" + amount);
+                if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
+                File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
                 InputStream inputStream = new InputStreamResource(new FileInputStream(output)).getInputStream();
                 response.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
                 response.setHeader("Content-Transfer-Encoding", "binary");

@@ -15,12 +15,9 @@ public class Fuel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
-    @ManyToOne(cascade={CascadeType.DETACH}, optional = false)
-    @JoinColumn(name="product_id")
-    private Product product;
     @Column(nullable = false)
     private double amount = 0;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private int number = 0;
     @Column(nullable = false, unique = true)
     private String code = "";
