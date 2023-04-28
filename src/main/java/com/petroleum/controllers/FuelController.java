@@ -198,4 +198,22 @@ public class FuelController {
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
     }
+
+    @ResponseBody
+    @GetMapping(value = "view/{id}", produces = MediaType.IMAGE_PNG_VALUE)
+    public byte[] viewFuel(@PathVariable long id) {
+        Fuel fuel = fuelRepository.findById(id).orElse(null);
+        if(fuel != null){
+            int amount = (int) fuel.getAmount();
+            File directory = new File(qrCodeLocation + "/" + amount);
+            File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
+            try {
+                InputStream inputStream = new InputStreamResource(new FileInputStream(output)).getInputStream();
+                return IOUtils.toByteArray(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return new byte[]{};
+    }
 }
