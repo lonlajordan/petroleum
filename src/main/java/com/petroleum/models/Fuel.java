@@ -9,7 +9,11 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "abp_fuel")
+@Table(name = "abp_fuel",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"amount", "number"}, name = "unique_amount_number"),
+        }
+)
 public class Fuel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

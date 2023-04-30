@@ -13,5 +13,6 @@ import java.util.List;
 public interface FuelRepository extends JpaRepository<Fuel, Long>, PagingAndSortingRepository<Fuel, Long> {
     Page<Fuel> findAllByOrderByDateDesc(Pageable pageable);
     Fuel findByCodeAndNumber(String code, int number);
+    Fuel findByAmountAndNumber(double amount, int number);
     List<Fuel> findAllByAmountOrderByNumberAsc(double amount);
 }
