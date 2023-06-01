@@ -72,8 +72,8 @@ public class PrintHelper {
         paragraph.setFixedPosition(35 * ratio, 246 * ratio, 300);
         document.add(paragraph);
 
-        paragraph = new Paragraph("Validité : " + invoice.getValidity() + " jours");
-        paragraph.setFixedPosition(76 * ratio, 20 * ratio, 300);
+        paragraph = new Paragraph("VALIDITÉ : " + invoice.getValidity() + " JOURS");
+        paragraph.setFixedPosition(76 * ratio, 165 * ratio, 300);
         document.add(paragraph);
 
         paragraph = new Paragraph(invoice.getDriver());
