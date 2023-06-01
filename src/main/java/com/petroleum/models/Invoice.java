@@ -25,6 +25,8 @@ public class Invoice {
     private Product product;
     @Column(nullable = false)
     private double volume;
+    @Column(nullable = false)
+    private int validity;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Column(columnDefinition = "DATE")
     private LocalDate loadingDate;

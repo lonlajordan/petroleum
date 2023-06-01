@@ -52,11 +52,12 @@ function editDepot(id, name) {
     $("#modal-create").modal('show');
 }
 
-function editInvoice(id, client, product, volume, loadingDepot, transporter, driver, loadingDate, truckNumber, deliveryPlace, receiptDate) {
+function editInvoice(id, client, product, volume, validity, loadingDepot, transporter, driver, loadingDate, truckNumber, deliveryPlace, receiptDate) {
     $("#invoice-id").val(id);
     $("#invoice-client").val(client);
     $("#invoice-product").val(product);
     $("#invoice-volume").val(volume);
+    $("#invoice-validity").val(validity);
     $("#invoice-loading-depot").val(loadingDepot);
     $("#invoice-transporter").val(transporter);
     $("#invoice-driver").val(driver);
