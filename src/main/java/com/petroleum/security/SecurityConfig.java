@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -53,6 +54,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    protected WebSecurityCustomizer ignoringCustomizer(){
+        return (web) -> web.ignoring().antMatchers("/css/**", "/js/**", "/images/**", "/fonts/**");
+    }
+
+    @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.csrf().disable()
             .exceptionHandling()
@@ -73,7 +79,7 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
             .and()
             .authorizeRequests()
-                .antMatchers("/", "/validate", "/css/**", "/js/**", "/images/**", "/fonts/**", "/fuels/view/**").permitAll()
+                .antMatchers("/", "/validate", "/fuels/view/**").permitAll()
                 .antMatchers("/users/**").hasAuthority("ROLE_ADMIN")
                 .antMatchers("/supplies/**", "/products/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DIRECTOR")
                 .anyRequest().authenticated();

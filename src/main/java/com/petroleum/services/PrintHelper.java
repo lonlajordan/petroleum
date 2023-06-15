@@ -68,7 +68,7 @@ public class PrintHelper {
         paragraph.setFixedPosition(174 * ratio, 251 * ratio, 300);
         document.add(paragraph);
 
-        paragraph = new Paragraph(invoice.getVolume() + "");
+        paragraph = new Paragraph(invoice.getVolume() + " LITRES");
         paragraph.setFixedPosition(35 * ratio, 246 * ratio, 300);
         document.add(paragraph);
 

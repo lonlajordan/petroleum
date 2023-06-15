@@ -12,6 +12,7 @@
     <link th:href="@{/css/tabler-vendors.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/demo.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/pagination.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
     <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
     <link th:href="@{/css/petroleum.css}" rel="stylesheet"/>
@@ -62,7 +63,15 @@
                     <!-- Page title actions -->
                     <div class="col-12 col-md-auto ms-auto d-print-none">
                         <div class="btn-list">
-                            <a id="create-folder" data-bs-toggle="modal" data-bs-target="#modal-create" class="btn btn-success d-none d-sm-inline-block">
+                            <a class="btn btn-white" th:classappend="${#bools.isTrue(filtered) ? '' : 'd-none'}" th:href="@{/fuels}">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="3" y1="3" x2="21" y2="21" /><path d="M9 5h9.5a1 1 0 0 1 .5 1.5l-4.049 4.454m-.951 3.046v5l-4 -3v-4l-5 -5.5a1 1 0 0 1 .18 -1.316" /></svg>
+                                <span class="d-none d-md-inline-block">Annuler le filtre</span>
+                            </a>
+                            <a id="filter-items" data-bs-toggle="modal" data-bs-target="#modal-search" class="btn btn-success d-none d-sm-inline-block">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.5 5h13a1 1 0 0 1 .5 1.5l-5 5.5l0 7l-4 -3l0 -4l-5 -5.5a1 1 0 0 1 .5 -1.5" /></svg>
+                                Filtrer
+                            </a>
+                            <a id="add-item" data-bs-toggle="modal" data-bs-target="#modal-create" class="btn btn-success d-none d-sm-inline-block">
                                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                 Ajouter
                             </a>
@@ -192,6 +201,45 @@
         </div>
     </div>
 </div>
+<div class="modal modal-blur fade" id="modal-search" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Recherche des bons de carburant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form name="uploadForm" th:action="@{/fuels/search}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Statut</label>
+                        <select class="form-select" name="status">
+                            <option value="-1" th:selected="${status == -1}">-</option>
+                            <option value="1" th:selected="${status == 1}">Actif</option>
+                            <option value="0" th:selected="${status == 0}">Désactivé</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Numéro</label>
+                        <input class="form-control" name="number" type="number" th:value="${number}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Montant</label>
+                        <input class="form-control" name="amount" type="number" th:value="${amount}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Annuler
+                    </a>
+                    <button id="send-files" class="btn btn-primary ms-auto">
+                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+                        Rechercher
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="modal modal-blur fade" id="modal-delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -228,6 +276,7 @@
 <script th:src="@{/js/js-snackbar.min.js}"></script>
 <script th:src="@{/js/dataTables.min.js}"></script>
 <script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
+<script th:src="@{/js/pagination.min.js}"></script>
 <script th:src="@{/js/petroleum.js}"></script>
 <!--/*@thymesVar id="notification" type="com.petroleum.models.Notification"*/-->
 <script th:if="${notification}" th:inline="javascript">

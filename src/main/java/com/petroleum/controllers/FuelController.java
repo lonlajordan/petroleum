@@ -27,6 +27,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
@@ -34,11 +41,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -49,6 +53,9 @@ public class FuelController {
     private final ServletContext servletContext;
     private final FuelMapper fuelMapper;
 
+    @PersistenceContext
+    private EntityManager em;
+
     @Value("${qr.code.location}")
     private String qrCodeLocation;
     @Value("${application.url}")
@@ -56,7 +63,7 @@ public class FuelController {
 
     @GetMapping
     public String getSupplies(@RequestParam(required = false, defaultValue = "1") int p, Model model){
-        Pageable pageable = PageRequest.of(p  - 1, 1000);
+        Pageable pageable = PageRequest.of(p  - 1, 500);
         Page<Fuel> fuels = fuelRepository.findAllByOrderByDateDesc(pageable);
         model.addAttribute("fuels", fuels.get().collect(Collectors.toList()));
         model.addAttribute("totalPages", fuels.getTotalPages());
@@ -214,5 +221,27 @@ public class FuelController {
             }
         }
         return new byte[]{};
+    }
+
+    @PostMapping(value="search")
+    public String search(@RequestParam(required = false, defaultValue = "-1") double amount, @RequestParam(required = false, defaultValue = "-1") double number, @RequestParam(required = false, defaultValue = "-1") int status, Model model){
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Fuel> cq = cb.createQuery(Fuel.class);
+        Root<Fuel> fuel = cq.from(Fuel.class);
+        List<Predicate> predicates = new ArrayList<>();
+        if(amount > 0) predicates.add(cb.equal(fuel.get("amount"), amount));
+        if(number > 0) predicates.add(cb.equal(fuel.get("number"), number));
+        if(status > -1) predicates.add(cb.equal(fuel.get("enabled"), status == 1));
+        cq.where(predicates.toArray(new Predicate[0]));
+        TypedQuery<Fuel> query = em.createQuery(cq).setMaxResults(500);
+        List<Fuel> fuels = query.getResultList();
+        model.addAttribute("fuels", fuels);
+        model.addAttribute("totalPages", 1);
+        model.addAttribute("currentPage", 0);
+        model.addAttribute("filtered", true);
+        model.addAttribute("amount", amount);
+        model.addAttribute("number", number);
+        model.addAttribute("status", status);
+        return "fuels";
     }
 }
