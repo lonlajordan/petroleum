@@ -1,4 +1,4 @@
-<header xmlns:th="http://www.thymeleaf.org" class="navbar navbar-expand-md navbar-light sticky-top d-print-none p-0">
+<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4" class="navbar navbar-expand-md navbar-light sticky-top d-print-none p-0">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
             <span class="navbar-toggler-icon"></span>
@@ -112,7 +112,8 @@
                                 Utilisateurs
                             </a>
                             <div class="dropdown-divider m-0"></div>
-                            <a th:href="@{/logout}" class="dropdown-item">
+                            <form th:action="@{/logout}" method="post" name="logoutForm"></form>
+                            <a href="javascript:document.logoutForm.submit()" class="dropdown-item">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                   <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
                                 </span>

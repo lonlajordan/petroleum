@@ -60,7 +60,7 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        http.csrf().disable()
+        http.csrf().and()
             .exceptionHandling()
                 .accessDeniedPage("/error/403")
                 .and()
