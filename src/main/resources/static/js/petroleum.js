@@ -11,6 +11,24 @@ function reverseSelection(){
     table.rows(rows).deselect();
 }
 
+function changeTransportWay(event) {
+    toggleTransportFields(event.target.value);
+}
+
+function toggleTransportFields(way){
+    if(way === '0'){
+        $('#transport-details').removeClass('d-none');
+        $('#transfer-transporter').removeAttr('disabled');
+        $('#transfer-truck-number').removeAttr('disabled');
+        $('#transfer-driver').removeAttr('disabled');
+    }else{
+        $('#transport-details').addClass('d-none');
+        $('#transfer-transporter').attr('disabled', 'disabled');
+        $('#transfer-truck-number').attr('disabled', 'disabled');
+        $('#transfer-driver').attr('disabled', 'disabled');
+    }
+}
+
 function deleteItem(id, url){
     $("#delete-messages").text("Voulez-vous vraiment supprimer cet élément ?");
     if(url.includes('user')) $("#delete-message").text("Voulez-vous vraiment supprimer cet utilisateur ?");
@@ -80,6 +98,9 @@ function editTransfer(id, client, product, volume, loadingDepot, transporter, dr
     $("#transfer-truck-number").val(truckNumber);
     $("#transfer-delivery-place").val(deliveryPlace);
     $("#transfer-receipt-date").val(receiptDate);
+    let way = transporter || driver || truckNumber ? '0' : '1';
+    $("#transport-road").val(way);
+    toggleTransportFields(way);
     $("#modal-create").modal('show');
 }
 

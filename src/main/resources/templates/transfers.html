@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4" lang="en">
+<!--/*@thymesVar id="transfers" type="java.util.List<com.petroleum.models.Transfer>"*/-->
+<!--/*@thymesVar id="depots" type="java.util.List<com.petroleum.models.Depot>"*/-->
+<!--/*@thymesVar id="products" type="java.util.List<com.petroleum.models.Product>"*/-->
+<!--/*@thymesVar id="totalPages" type="java.lang.Integer"*/-->
+<!--/*@thymesVar id="currentPage" type="java.lang.Integer"*/-->
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -113,9 +118,12 @@
                                             <span th:text="${transfer.loadingDepot?.name}"></span><br><i th:text="${#temporals.format(transfer.loadingDate, 'dd-MM-yyyy')}"></i>
                                         </td>
                                         <td>
-                                            <span th:text="${transfer.transporter}"></span><br>
-                                            <span th:text="${transfer.driver}"></span><br>
-                                            <i th:text="${transfer.truckNumber}"></i>
+                                            <span th:if="${#strings.isEmpty(transfer.transporter) || #strings.isEmpty(transfer.driver) || #strings.isEmpty(transfer.truckNumber)}">TRAIN</span>
+                                            <th:block th:unless="${#strings.isEmpty(transfer.transporter) || #strings.isEmpty(transfer.driver) || #strings.isEmpty(transfer.truckNumber)}">
+                                                <span th:text="${transfer.transporter}"></span><br>
+                                                <span th:text="${transfer.driver}"></span><br>
+                                                <i th:text="${transfer.truckNumber}"></i>
+                                            </th:block>
                                         </td>
                                         <td>
                                             <span th:text="${transfer.deliveryPlace?.name}"></span><br><i th:text="${#temporals.format(transfer.receiptDate, 'dd-MM-yyyy')}"></i>
@@ -138,7 +146,7 @@
                                                         <svg class="icon" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4"></path><line x1="13.5" y1="6.5" x2="17.5" y2="10.5"></line></svg>
                                                         <span class="ml-2">Modifier</span>
                                                     </a>
-                                                    <a class="dropdown-item mw-0" sec:authorize="hasRole('ROLE_DISPATCHER')" th:if="${T(com.petroleum.enums.Status).REJECTED.equals(transfer.status)}" th:href="@{'/transfers/' + ${transfer.id} + '/submit'}">
+                                                    <a class="dropdown-item mw-0" sec:authorize="hasAnyRole('ROLE_DISPATCHER', 'ROLE_ADMIN')" th:if="${T(com.petroleum.enums.Status).REJECTED.equals(transfer.status)}" th:href="@{'/transfers/' + ${transfer.id} + '/submit'}">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-send" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                             <path d="M10 14l11 -11"></path>
@@ -146,7 +154,7 @@
                                                         </svg>
                                                         <span class="ml-2">Soumettre</span>
                                                     </a>
-                                                    <th:block th:if="${transfer.canDecide(isDirector)}" sec:authorize="hasAnyRole('ROLE_OPERATING_OFFICER','ROLE_DIRECTOR')">
+                                                    <th:block th:if="${transfer.canDecide(isDirector)}" sec:authorize="hasAnyRole('ROLE_OPERATING_OFFICER','ROLE_DIRECTOR', 'ROLE_ADMIN')">
                                                         <a class="dropdown-item mw-0" th:href="@{'/transfers/' + ${transfer.id} + '/approve'}">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewbox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -262,17 +270,26 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label required">Transporteur</label>
-                        <input class="form-control text-transform-uppercase" name="transporter" id="transfer-transporter" required>
+                        <label class="form-label required">Voie de transport</label>
+                        <select class="form-select" id="transport-road" onclick="changeTransportWay(event)" required>
+                            <option value="0">Route</option>
+                            <option value="1">Train</option>
+                        </select>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-12 col-md-6">
-                            <label class="form-label required">N° Camion</label>
-                            <input class="form-control text-transform-uppercase" name="truckNumber" id="transfer-truck-number" required>
+                    <div id="transport-details">
+                        <div class="mb-3">
+                            <label class="form-label required">Transporteur</label>
+                            <input class="form-control text-transform-uppercase" name="transporter" id="transfer-transporter" required>
                         </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label required">Chauffeur</label>
-                            <input class="form-control text-transform-uppercase" name="driver" id="transfer-driver" required>
+                        <div class="row mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label required">N° Camion</label>
+                                <input class="form-control text-transform-uppercase" name="truckNumber" id="transfer-truck-number" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label required">Chauffeur</label>
+                                <input class="form-control text-transform-uppercase" name="driver" id="transfer-driver" required>
+                            </div>
                         </div>
                     </div>
                     <div class="row mb-3">
