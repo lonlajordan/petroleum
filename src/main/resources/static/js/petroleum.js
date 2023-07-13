@@ -18,12 +18,10 @@ function changeTransportWay(event) {
 function toggleTransportFields(way){
     if(way === '0'){
         $('#transport-details').removeClass('d-none');
-        $('#transfer-transporter').removeAttr('disabled');
         $('#transfer-truck-number').removeAttr('disabled');
         $('#transfer-driver').removeAttr('disabled');
     }else{
         $('#transport-details').addClass('d-none');
-        $('#transfer-transporter').attr('disabled', 'disabled');
         $('#transfer-truck-number').attr('disabled', 'disabled');
         $('#transfer-driver').attr('disabled', 'disabled');
     }
@@ -98,7 +96,7 @@ function editTransfer(id, client, product, volume, loadingDepot, transporter, dr
     $("#transfer-truck-number").val(truckNumber);
     $("#transfer-delivery-place").val(deliveryPlace);
     $("#transfer-receipt-date").val(receiptDate);
-    let way = transporter || driver || truckNumber ? '0' : '1';
+    let way = driver || truckNumber ? '0' : '1';
     $("#transport-road").val(way);
     toggleTransportFields(way);
     $("#modal-create").modal('show');

@@ -5,6 +5,7 @@
 <!--/*@thymesVar id="products" type="java.util.List<com.petroleum.models.Product>"*/-->
 <!--/*@thymesVar id="totalPages" type="java.lang.Integer"*/-->
 <!--/*@thymesVar id="currentPage" type="java.lang.Integer"*/-->
+<!--/*@thymesVar id="isDirector" type="java.lang.Boolean"*/-->
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -118,10 +119,9 @@
                                             <span th:text="${transfer.loadingDepot?.name}"></span><br><i th:text="${#temporals.format(transfer.loadingDate, 'dd-MM-yyyy')}"></i>
                                         </td>
                                         <td>
-                                            <span th:if="${#strings.isEmpty(transfer.transporter) || #strings.isEmpty(transfer.driver) || #strings.isEmpty(transfer.truckNumber)}">TRAIN</span>
-                                            <th:block th:unless="${#strings.isEmpty(transfer.transporter) || #strings.isEmpty(transfer.driver) || #strings.isEmpty(transfer.truckNumber)}">
-                                                <span th:text="${transfer.transporter}"></span><br>
-                                                <span th:text="${transfer.driver}"></span><br>
+                                            <span th:text="${transfer.transporter}"></span>
+                                            <th:block th:unless="${#strings.isEmpty(transfer.driver) || #strings.isEmpty(transfer.truckNumber)}">
+                                                <br><span th:text="${transfer.driver}"></span><br>
                                                 <i th:text="${transfer.truckNumber}"></i>
                                             </th:block>
                                         </td>
@@ -269,18 +269,20 @@
                             <input class="form-control" type="date" id="transfer-loading-date" name="loadingDate" required>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label required">Voie de transport</label>
-                        <select class="form-select" id="transport-road" onclick="changeTransportWay(event)" required>
-                            <option value="0">Route</option>
-                            <option value="1">Train</option>
-                        </select>
-                    </div>
-                    <div id="transport-details">
-                        <div class="mb-3">
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required">Voie de transport</label>
+                            <select class="form-select" id="transport-road" onclick="changeTransportWay(event)" required>
+                                <option value="0">Route</option>
+                                <option value="1">Train</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
                             <label class="form-label required">Transporteur</label>
                             <input class="form-control text-transform-uppercase" name="transporter" id="transfer-transporter" required>
                         </div>
+                    </div>
+                    <div id="transport-details">
                         <div class="row mb-3">
                             <div class="col-12 col-md-6">
                                 <label class="form-label required">N° Camion</label>

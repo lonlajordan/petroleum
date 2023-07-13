@@ -140,9 +140,9 @@ public class InvoiceController {
                 String to = userRepository.findFirstByRole(Role.ROLE_DISPATCHER).orElse(new User()).getEmail();
                 if(StringUtils.isNotBlank(to)){
                     StringBuilder body = new StringBuilder("<div style='line-height: 1.6'>Bonjour Mr/Mme,<br>")
-                            .append("Le bon d'enlèvement ID-").append(invoice.getId()).append(" a été rejété pour le motif suivant : <b>").append(reason).append("</b>").append("<br>")
-                            .append("Veuillez apporter les corrections nécessaires et soumettre à nouveau.<br>")
-                            .append("Cordialement.</div>");
+                        .append("Le bon d'enlèvement ID-").append(invoice.getId()).append(" a été rejété pour le motif suivant : <b>").append(reason).append("</b>").append("<br>")
+                        .append("Veuillez apporter les corrections nécessaires et soumettre à nouveau.<br>")
+                        .append("Cordialement.</div>");
                     EmailHelper.sendMail(to, "","Processus de validation d'un bon d'enlèvement", body.toString());
                 }
                 notification.setType("success");
