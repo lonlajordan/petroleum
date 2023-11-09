@@ -1,10 +1,15 @@
 package com.petroleum.controllers;
 
 import com.petroleum.enums.Status;
-import com.petroleum.models.*;
-import com.petroleum.repositories.*;
+import com.petroleum.models.Invoice;
+import com.petroleum.models.Product;
+import com.petroleum.models.Transfer;
+import com.petroleum.repositories.InvoiceRepository;
+import com.petroleum.repositories.ProductRepository;
+import com.petroleum.repositories.TransferRepository;
 import com.petroleum.services.PrintHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,16 +22,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.time.LocalDate;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/taxes")
@@ -63,7 +67,7 @@ public class TaxController {
             });
             File file = PrintHelper.report(products, month);
             if(file.exists()){
-                InputStream inputStream = new InputStreamResource(new FileInputStream(file)).getInputStream();
+                InputStream inputStream = new InputStreamResource(Files.newInputStream(file.toPath())).getInputStream();
                 response.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
                 response.setHeader("Content-Transfer-Encoding", "binary");
                 response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
@@ -75,7 +79,7 @@ public class TaxController {
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error while downloading monthly tax report", e);
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
     }

@@ -1,5 +1,8 @@
 package com.petroleum.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Role {
     ROLE_ADMIN("Administrateur"),
     ROLE_DIRECTOR("Directeur Général"),
@@ -12,7 +15,4 @@ public enum Role {
         this.displayValue = displayValue;
     }
 
-    public String getDisplayValue() {
-        return displayValue;
-    }
 }

@@ -159,7 +159,10 @@
                                 </table>
                             </div>
                             <div th:if="${totalPages > 1}" class="card-footer py-2 d-flex align-items-center">
-                                <div id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="fuels"></div>
+                                <!--/*@thymesVar id="totalPages" type="java.lang.Integer"*/-->
+                                <!--/*@thymesVar id="currentPage" type="java.lang.Integer"*/-->
+                                <!--/*@thymesVar id="search" type="java.lang.Boolean"*/-->
+                                <div id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="fuels" th:classappend="${#bools.isTrue(filtered) ? 'data-search' : ''}"></div>
                             </div>
                         </div>
                     </div>
@@ -168,7 +171,6 @@
         </div>
         <div th:replace="footer.html"></div>
     </div>
-</div>
 </div>
 <div class="modal modal-blur fade" id="modal-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -209,8 +211,9 @@
                 <h5 class="modal-title">Recherche des bons de carburant</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form name="uploadForm" th:action="@{/fuels/search}" method="post">
+            <form name="searchForm" th:action="@{/fuels/search}" method="post">
                 <div class="modal-body">
+                    <input name="page" type="hidden" id="current-page" th:value="${currentPage}">
                     <div class="mb-3">
                         <label class="form-label">Statut</label>
                         <select class="form-select" name="status">
@@ -232,7 +235,7 @@
                     <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
                         Annuler
                     </a>
-                    <button id="send-files" class="btn btn-primary ms-auto">
+                    <button id="search-button-id" class="btn btn-primary ms-auto">
                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
                         Rechercher
                     </button>
@@ -248,7 +251,7 @@
             <div class="modal-status bg-danger"></div>
             <div class="modal-body text-center py-4">
                 <svg class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
-                <h3>Êtes vous sûr ?</h3>
+                <h3>Êtes-vous sûr ?</h3>
                 <div class="text-muted" id="delete-message">Voulez-vous vraiment supprimer ces bons de carburants ?</div>
             </div>
             <div class="modal-footer">

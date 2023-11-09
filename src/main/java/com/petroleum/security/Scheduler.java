@@ -13,6 +13,7 @@ import com.petroleum.repositories.UserRepository;
 import com.petroleum.services.EmailHelper;
 import com.petroleum.services.PrintHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 @EnableScheduling
@@ -63,7 +65,7 @@ public class Scheduler {
                 EmailHelper.sendMailWithAttachments(to, cc, object, body, Collections.singletonList(attachment));
             }
         } catch (IOException | MessagingException e) {
-            e.printStackTrace();
+            log.error("Error while generating monthly tax report", e);
         }
     }
 

@@ -21,5 +21,5 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long>, PagingA
     List<Invoice> findAllByProductAndStatusAndDateBetween(Product product, Status status, LocalDateTime start, LocalDateTime end);
     @Transactional
     @Modifying(clearAutomatically = true)
-    int deleteAllByIdInAndStatusNot(Collection<Long> ids, Status status);
+    void deleteAllByIdInAndStatusNot(Collection<Long> ids, Status status);
 }

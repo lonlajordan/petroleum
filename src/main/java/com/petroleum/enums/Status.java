@@ -1,10 +1,13 @@
 package com.petroleum.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Status {
     PENDING("En attente du chef d'exploitation"),
     WAITING("En attente du directeur général"),
     APPROVED("Approuvé"),
-    REJECTED("Rejété");
+    REJECTED("Rejeté");
 
     private final String displayValue;
 
@@ -12,7 +15,4 @@ public enum Status {
         this.displayValue = displayValue;
     }
 
-    public String getDisplayValue() {
-        return displayValue;
-    }
 }

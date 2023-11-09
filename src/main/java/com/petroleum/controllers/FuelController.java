@@ -12,6 +12,7 @@ import com.petroleum.models.Notification;
 import com.petroleum.repositories.FuelRepository;
 import com.petroleum.utils.TextUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/fuels")
@@ -62,7 +64,7 @@ public class FuelController {
     private String applicationUrl;
 
     @GetMapping
-    public String getSupplies(@RequestParam(required = false, defaultValue = "1") int p, Model model){
+    public String getFuels(@RequestParam(required = false, defaultValue = "1") int p, Model model){
         Pageable pageable = PageRequest.of(p  - 1, 500);
         Page<Fuel> fuels = fuelRepository.findAllByOrderByDateDesc(pageable);
         model.addAttribute("fuels", fuels.get().collect(Collectors.toList()));
@@ -71,8 +73,7 @@ public class FuelController {
         return "fuels";
     }
 
-    /*
-    @GetMapping("generate")
+    /*@GetMapping("generate")
     public String generate(){
         List<Fuel> fuels = new ArrayList<>();
         for(int i = 1; i <= 5000; i++){
@@ -104,6 +105,7 @@ public class FuelController {
             notification.setType("success");
             notification.setMessage(n == 1 ? "Le bon de carburant a été enregistré." : "Les bons de carburant ont été enregistrés.");
         } catch (Exception e){
+            log.error("Error while saving fuel ticket", e);
             notification.setType("error");
             notification.setMessage("Erreur lors de l'enregistrement.");
         }
@@ -117,6 +119,7 @@ public class FuelController {
             fuelRepository.deleteAllById(ids);
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
         }catch (Exception e){
+            log.error("Error while deleting fuel ticket", e);
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
         }
         return "redirect:/fuels";
@@ -134,6 +137,7 @@ public class FuelController {
                 notification.setMessage("Le bon de carburant a été " + (fuel.isEnabled() ? "activé" : "désactivé") + " avec succès.");
             }
         }catch (Exception e){
+            log.error("Error while changing fuel ticket status", e);
             notification.setType("error");
             notification.setMessage("Erreur lors du changement de statut du bon de carburant d'identifiant <b>" + id + "</b>.");
         }
@@ -176,7 +180,7 @@ public class FuelController {
                 Files.copy( new ByteArrayInputStream(os.toByteArray()), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error while printing QR-Code", e);
         }
     }
 
@@ -189,7 +193,7 @@ public class FuelController {
                 File directory = new File(qrCodeLocation + "/" + amount);
                 if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
                 File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
-                InputStream inputStream = new InputStreamResource(new FileInputStream(output)).getInputStream();
+                InputStream inputStream = new InputStreamResource(Files.newInputStream(output.toPath())).getInputStream();
                 response.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
                 response.setHeader("Content-Transfer-Encoding", "binary");
                 response.setHeader("Content-Disposition", "attachment; filename=" + output.getName());
@@ -201,7 +205,7 @@ public class FuelController {
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error while downloading monthly tax report", e);
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
     }
@@ -214,30 +218,35 @@ public class FuelController {
             File directory = new File(qrCodeLocation + "/" + amount);
             File output = new File(directory.getAbsolutePath() + File.separator + number + ".png");
             try {
-                InputStream inputStream = new InputStreamResource(new FileInputStream(output)).getInputStream();
+                InputStream inputStream = new InputStreamResource(Files.newInputStream(output.toPath())).getInputStream();
                 return IOUtils.toByteArray(inputStream);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Error while downloading fuel ticket QR-Code", e);
             }
         }
         return new byte[]{};
     }
 
     @PostMapping(value="search")
-    public String search(@RequestParam(required = false, defaultValue = "-1") double amount, @RequestParam(required = false, defaultValue = "-1") double number, @RequestParam(required = false, defaultValue = "-1") int status, Model model){
+    public String search(@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false) Double amount, @RequestParam(required = false) Double number, @RequestParam(required = false, defaultValue = "-1") int status, Model model){
+        int pageSize = 500;
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Fuel> cq = cb.createQuery(Fuel.class);
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<Fuel> fuel = cq.from(Fuel.class);
         List<Predicate> predicates = new ArrayList<>();
-        if(amount > 0) predicates.add(cb.equal(fuel.get("amount"), amount));
-        if(number > 0) predicates.add(cb.equal(fuel.get("number"), number));
+        if(amount != null && amount > 0) predicates.add(cb.equal(fuel.get("amount"), amount));
+        if(number != null && number > 0) predicates.add(cb.equal(fuel.get("number"), number));
         if(status > -1) predicates.add(cb.equal(fuel.get("enabled"), status == 1));
         cq.where(predicates.toArray(new Predicate[0]));
-        TypedQuery<Fuel> query = em.createQuery(cq).setMaxResults(500);
+        countQuery.select(cb.count(countQuery.where(predicates.toArray(new Predicate[0])).from(Fuel.class)));
+        TypedQuery<Fuel> query = em.createQuery(cq).setMaxResults(pageSize).setFirstResult((page - 1) * pageSize);
         List<Fuel> fuels = query.getResultList();
+        long count = em.createQuery(countQuery).getSingleResult();
+        int totalPages = ((int) count / pageSize) + (count % pageSize == 0 ? 0 : 1);
         model.addAttribute("fuels", fuels);
-        model.addAttribute("totalPages", 1);
-        model.addAttribute("currentPage", 0);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("currentPage", page);
         model.addAttribute("filtered", true);
         model.addAttribute("amount", amount);
         model.addAttribute("number", number);

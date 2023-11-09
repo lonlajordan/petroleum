@@ -9,6 +9,7 @@ import com.petroleum.repositories.*;
 import com.petroleum.services.EmailHelper;
 import com.petroleum.services.PrintHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,12 +29,13 @@ import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/transfers")
@@ -75,7 +77,7 @@ public class TransferController {
                 if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating transfer pdf folder");
                 File output = new File(directory.getAbsolutePath() + File.separator + "bon_transfert_" + id + ".pdf");
                 PrintHelper.print(transfer, output);
-                InputStream inputStream = new InputStreamResource(new FileInputStream(output)).getInputStream();
+                InputStream inputStream = new InputStreamResource(Files.newInputStream(output.toPath())).getInputStream();
                 response.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
                 response.setHeader("Content-Transfer-Encoding", "binary");
                 response.setHeader("Content-Disposition", "attachment; filename=" + output.getName());
@@ -87,7 +89,7 @@ public class TransferController {
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error while downloading transfert report", e);
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
     }
@@ -104,13 +106,11 @@ public class TransferController {
                     transfer.setStep(Step.OPERATING_OFFICER);
                     transfer.setStatus(Status.PENDING);
                     transfer.setReason("");
-                    to = userRepository.findFirstByRole(Role.ROLE_OPERATING_OFFICER).orElse(new User()).getEmail();
-                    message = "Le bon de transfert ID-" + transfer.getId() + " est en attente d'approbation.";
                 }else if("approve".equals(action)){
                     if(Step.DIRECTOR.equals(transfer.getStep())){
                         transfer.setStatus(Status.APPROVED);
                         to = userRepository.findFirstByRole(Role.ROLE_DISPATCHER).orElse(new User()).getEmail();
-                        message = "Le bon de transftert ID-" + transfer.getId() + " a été approuvé par la Direction Générale. Vous pouvez procéder à l'impression.";
+                        message = "Le bon de transfert ID-" + transfer.getId() + " a été approuvé par la Direction Générale. Vous pouvez procéder à l'impression.";
                     }else{
                         double volume = transfer.getVolume();
                         double available = stockRepository.findFirstByDepotAndProduct(transfer.getLoadingDepot(), transfer.getProduct()).orElse(new Stock(transfer.getLoadingDepot(), transfer.getProduct())).getVolume();
@@ -125,10 +125,10 @@ public class TransferController {
                             message = "Le bon de transfert ID-" + transfer.getId() + " a été approuvé par le Chef d'Exploitation. Vous pouvez procéder à l'impression.";
                         }
                     }
-                    StringBuilder body = new StringBuilder("<div style='line-height: 1.6'>Bonjour Mr/Mme,<br>")
-                            .append(message).append("<br>")
-                            .append("Cordialement.</div>");
-                    EmailHelper.sendMail(to, "","Processus de validation d'un bon de transfert", body.toString());
+                    String body = "<div style='line-height: 1.6'>Bonjour Mr/Mme,<br>" +
+                            message + "<br>" +
+                            "Cordialement.</div>";
+                    EmailHelper.sendMail(to, "","Processus de validation d'un bon de transfert", body);
                 }
                 transfer = transferRepository.save(transfer);
                 if(Status.APPROVED.equals(transfer.getStatus())){
@@ -164,11 +164,11 @@ public class TransferController {
                 transferRepository.save(transfer);
                 String to = userRepository.findFirstByRole(Role.ROLE_DISPATCHER).orElse(new User()).getEmail();
                 if(StringUtils.isNotBlank(to)){
-                    StringBuilder body = new StringBuilder("<div style='line-height: 1.6'>Bonjour Mr/Mme,<br>")
-                            .append("Le bon de transfert ID-").append(transfer.getId()).append(" a été rejété pour le motif suivant : <b>").append(reason).append("</b>").append("<br>")
-                            .append("Veuillez apporter les corrections nécessaires et soumettre à nouveau.<br>")
-                            .append("Cordialement.</div>");
-                    EmailHelper.sendMail(to, "","Processus de validation d'un bon de transfert", body.toString());
+                    String body = "<div style='line-height: 1.6'>Bonjour Mr/Mme,<br>" +
+                            "Le bon de transfert ID-" + transfer.getId() + " a été rejeté pour le motif suivant : <b>" + reason + "</b>" + "<br>" +
+                            "Veuillez apporter les corrections nécessaires et soumettre à nouveau.<br>" +
+                            "Cordialement.</div>";
+                    EmailHelper.sendMail(to, "","Processus de validation d'un bon de transfert", body);
                 }
                 notification.setType("success");
                 notification.setMessage("L'opération a été effectuée avec succès.");
@@ -200,10 +200,10 @@ public class TransferController {
             if(creation){
                 String to = userRepository.findFirstByRole(Role.ROLE_OPERATING_OFFICER).orElse(new User()).getEmail();
                 if(StringUtils.isNotBlank(to)){
-                    StringBuilder body = new StringBuilder("<div style='line-height: 1.6'>Bonjour Mr/Mme,<br>")
-                            .append("Le bon de transfert ID-").append(transfer.getId()).append(" est en attente d'approbation.<br>")
-                            .append("Cordialement.</div>");
-                    EmailHelper.sendMail(to, "","Processus de validation d'un bon de transfert", body.toString());
+                    String body = "<div style='line-height: 1.6'>Bonjour Mr/Mme,<br>" +
+                            "Le bon de transfert ID-" + transfer.getId() + " est en attente d'approbation.<br>" +
+                            "Cordialement.</div>";
+                    EmailHelper.sendMail(to, "","Processus de validation d'un bon de transfert", body);
                 }
             }
             notification.setType("success");

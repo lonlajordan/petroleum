@@ -7,6 +7,7 @@ import com.petroleum.repositories.UserRepository;
 import com.petroleum.services.EmailHelper;
 import com.petroleum.utils.TextUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -26,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -49,6 +51,7 @@ public class UserController {
             userRepository.deleteAllById(Arrays.asList(ids));
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
         }catch (Exception e){
+            log.error("Error while deleting users", e);
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
         }
         return "redirect:/users";
@@ -66,6 +69,7 @@ public class UserController {
                 notification.setMessage("<b>" + user.getName() + "</b> a été " + (user.isEnabled() ? "activé" : "désactivé") + " avec succès.");
             }
         }catch (Exception e){
+            log.error("Error while deleting user status", e);
             notification.setType("error");
             notification.setMessage("Erreur lors du changement de statut de l'utilisateur d'identifiant <b>" + id + "</b>.");
         }
@@ -82,15 +86,16 @@ public class UserController {
                 String password = TextUtils.generatePassword();
                 user.setPassword(new BCryptPasswordEncoder().encode(password));
                 user = userRepository.save(user);
-                StringBuilder body = new StringBuilder("<div style='line-height: 1.6'>Cher client,<br>")
-                        .append("Votre nouveau mot de passe est : <b> ").append(password).append("</b><br>")
-                        .append("<a href='").append(applicationUrl).append("'>Ouvrir l'application</a><br>")
-                        .append("Cordialement.</div>");
-                EmailHelper.sendMail(user.getEmail(), "","Changement de mot de passe", body.toString());
+                String body = "<div style='line-height: 1.6'>Cher client,<br>" +
+                        "Votre nouveau mot de passe est : <b> " + password + "</b><br>" +
+                        "<a href='" + applicationUrl + "'>Ouvrir l'application</a><br>" +
+                        "Cordialement.</div>";
+                EmailHelper.sendMail(user.getEmail(), "","Changement de mot de passe", body);
                 notification.setType("success");
                 notification.setMessage("Le mot de passe de l'utilisateur <b>" + user.getName() + "</b> a été changé avec succès.");
             }
         }catch (Exception e){
+            log.error("Error while changing user password", e);
             notification.setType("error");
             notification.setMessage("Erreur lors du changement du mot de passe de l'utilisateur d'identifiant <b>" + id + "</b>.");
         }
@@ -108,15 +113,15 @@ public class UserController {
         } else {
             password = TextUtils.generatePassword();
             user.setPassword(new BCryptPasswordEncoder().encode(password));
-            StringBuilder body = new StringBuilder("<div style='line-height: 1.6'>Cher client,<br>")
-                    .append("Vos paramètres de connexion sont : <br>")
-                    .append("<ol>")
-                    .append("<li><b>Adresse email : <b> ").append(user.getEmail()).append("</li>")
-                    .append("<li><b>Mot de passe : <b> ").append(password).append("</li>")
-                    .append("</ol><br>")
-                    .append("<a href='").append(applicationUrl).append("'>Ouvrir l'application</a><br>")
-                    .append("Cordialement.</div>");
-            EmailHelper.sendMail(user.getEmail(), "","Nouveau Compte", body.toString());
+            String body = "<div style='line-height: 1.6'>Cher client,<br>" +
+                    "Vos paramètres de connexion sont : <br>" +
+                    "<ol>" +
+                    "<li><b>Adresse email : <b> " + user.getEmail() + "</li>" +
+                    "<li><b>Mot de passe : <b> " + password + "</li>" +
+                    "</ol><br>" +
+                    "<a href='" + applicationUrl + "'>Ouvrir l'application</a><br>" +
+                    "Cordialement.</div>";
+            EmailHelper.sendMail(user.getEmail(), "","Nouveau Compte", body);
         }
         user.normalize();
         Notification notification = new Notification();
@@ -133,7 +138,7 @@ public class UserController {
                 session.setAttribute("user", user);
             }
         } catch (Exception e){
-            e.printStackTrace();
+            log.error("Error while saving user", e);
             notification.setType("error");
             if(ExceptionUtils.getStackTrace(e).toLowerCase().contains("duplicate entry")){
                 notification.setMessage("L'adresse e-mail <b>[ " + user.getEmail() + " ]</b> existe déjà.");

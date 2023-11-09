@@ -7,6 +7,7 @@ import com.petroleum.repositories.ProductRepository;
 import com.petroleum.repositories.StockRepository;
 import com.petroleum.repositories.SupplyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/supplies")
@@ -71,6 +73,7 @@ public class SupplyController {
             notification.setType("success");
             notification.setMessage("L'approvisionnement a été enregistré.");
         } catch (Exception e){
+            log.error("Error while saving supply", e);
             notification.setType("error");
             notification.setMessage("Erreur lors de l'enregistrement de l'approvisionnement.");
         }

@@ -5,6 +5,7 @@ import com.petroleum.models.Depot;
 import com.petroleum.models.Notification;
 import com.petroleum.repositories.DepotRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/depots")
@@ -46,7 +48,7 @@ public class DepotController {
             notification.setType("success");
             notification.setMessage("<b>" + depot.getName() +"</b> a été enregistré.");
         } catch (Exception e){
-            e.printStackTrace();
+            log.error("Error while saving depot", e);
             notification.setType("error");
             if(ExceptionUtils.getStackTrace(e).toLowerCase().contains("duplicate entry")){
                 notification.setMessage("Le dépôt <b>" + depot.getName() + "</b> existe déjà.");

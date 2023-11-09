@@ -187,7 +187,12 @@ function initPagination(){
             showGoButton: true,
             triggerPagingOnInit: false,
             callback: function(data, pagination) {
-                window.location = ctx + '/' + paginator.attr('aria-label') + '?p=' + pagination.pageNumber;
+                if(paginator.hasClass('data-search')){
+                    $('#current-page').val(pagination.pageNumber);
+                    $('#search-button-id').click();
+                }else{
+                    window.location = ctx + '/' + paginator.attr('aria-label') + '?p=' + pagination.pageNumber;
+                }
             }
         })
     }
