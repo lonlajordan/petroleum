@@ -252,47 +252,47 @@
               </select>
             </div>
             <div class="col-12 col-md-4">
-              <label class="form-label required">Volume (en litres)</label>
+              <label class="form-label required" for="invoice-volume">Volume (en litres)</label>
               <input class="form-control" name="volume" type="number" id="invoice-volume" min="1" required>
             </div>
             <div class="col-12 col-md-4">
-              <label class="form-label required">Validité (en jours)</label>
+              <label class="form-label required" for="invoice-validity">Validité (en jours)</label>
               <input class="form-control" name="validity" type="number" id="invoice-validity" min="1" required>
             </div>
           </div>
           <div class="row mb-3">
             <div class="col-12 col-md-6">
-              <label class="form-label required">Dépot de chargement</label>
+              <label class="form-label required" for="invoice-loading-depot">Dépot de chargement</label>
               <select class="form-select" name="loadingDepotId" id="invoice-loading-depot" required>
                 <option th:each="depot : ${depots}" th:value="${depot.id}" th:text="${depot.name}"></option>
               </select>
             </div>
             <div class="col-12 col-md-6">
-              <label class="form-label required">Date de chargement</label>
+              <label class="form-label required" for="invoice-loading-date">Date de chargement</label>
               <input class="form-control" type="date" id="invoice-loading-date" name="loadingDate" required>
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label required">Transporteur</label>
+            <label class="form-label required" for="invoice-transporter">Transporteur</label>
             <input class="form-control text-transform-uppercase" name="transporter" id="invoice-transporter" required>
           </div>
           <div class="row mb-3">
             <div class="col-12 col-md-6">
-              <label class="form-label required">N° Camion</label>
+              <label class="form-label required" for="invoice-truck-number">N° Camion</label>
               <input class="form-control text-transform-uppercase" name="truckNumber" id="invoice-truck-number" required>
             </div>
             <div class="col-12 col-md-6">
-              <label class="form-label required">Chauffeur</label>
+              <label class="form-label required" for="invoice-driver">Chauffeur</label>
               <input class="form-control text-transform-uppercase" name="driver" id="invoice-driver" required>
             </div>
           </div>
           <div class="row mb-3">
             <div class="col-12 col-md-6">
-              <label class="form-label required">Lieu de livraison</label>
+              <label class="form-label required" for="invoice-delivery-place">Lieu de livraison</label>
               <input class="form-control" name="deliveryPlace" id="invoice-delivery-place" required>
             </div>
             <div class="col-12 col-md-6">
-              <label class="form-label required">Date de réception</label>
+              <label class="form-label required" for="invoice-receipt-date">Date de réception</label>
               <input class="form-control" type="date" name="receiptDate" id="invoice-receipt-date" required>
             </div>
           </div>

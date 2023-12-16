@@ -183,11 +183,11 @@
                 <input id="fuel-id" type="hidden" name="id">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label required">Numéro</label>
+                        <label class="form-label required" for="fuel-number">Numéro</label>
                         <input type="number" min="1" step="1" class="form-control" id="fuel-number" name="number" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label required">Prix (en FCFA)</label>
+                        <label class="form-label required" for="fuel-amount">Prix (en FCFA)</label>
                         <input type="number" min="1" class="form-control" id="fuel-amount" name="amount" required>
                     </div>
                 </div>
@@ -215,8 +215,8 @@
                 <div class="modal-body">
                     <input name="page" type="hidden" id="current-page" th:value="${currentPage}">
                     <div class="mb-3">
-                        <label class="form-label">Statut</label>
-                        <select class="form-select" name="status">
+                        <label class="form-label" for="status">Statut</label>
+                        <select class="form-select" name="status" id="status">
                             <option value="-1" th:selected="${status == -1}">-</option>
                             <option value="1" th:selected="${status == 1}">Actif</option>
                             <option value="0" th:selected="${status == 0}">Désactivé</option>

@@ -214,7 +214,7 @@
                 <input id="transfer-reject-id" type="hidden" name="id">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label required">Motif du rejet</label>
+                        <label class="form-label required" for="transfer-reason">Motif du rejet</label>
                         <textarea class="form-control" id="transfer-reason" name="reason" required></textarea>
                     </div>
                 </div>
@@ -242,67 +242,67 @@
                 <input id="transfer-id" type="hidden" name="id">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label required">Client</label>
+                        <label class="form-label required" for="transfer-client">Client</label>
                         <input class="form-control text-transform-uppercase" name="client" id="transfer-client" required>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12 col-md-6">
-                            <label class="form-label required">Produit</label>
+                            <label class="form-label required" for="transfer-product">Produit</label>
                             <select class="form-select" name="productId" id="transfer-product" required>
                                 <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.name}"></option>
                             </select>
                         </div>
                         <div class="col-12 col-md-6">
-                            <label class="form-label required">Volume (en litres)</label>
+                            <label class="form-label required" for="transfer-volume">Volume (en litres)</label>
                             <input class="form-control" name="volume" type="number" id="transfer-volume" min="1" required>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12 col-md-6">
-                            <label class="form-label required">Dépot de chargement</label>
+                            <label class="form-label required" for="transfer-loading-depot">Dépot de chargement</label>
                             <select class="form-select" name="loadingDepotId" id="transfer-loading-depot" required>
                                 <option th:each="depot : ${depots}" th:value="${depot.id}" th:text="${depot.name}"></option>
                             </select>
                         </div>
                         <div class="col-12 col-md-6">
-                            <label class="form-label required">Date de chargement</label>
+                            <label class="form-label required" for="transfer-loading-date">Date de chargement</label>
                             <input class="form-control" type="date" id="transfer-loading-date" name="loadingDate" required>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12 col-md-6">
-                            <label class="form-label required">Voie de transport</label>
+                            <label class="form-label required" for="transport-road">Voie de transport</label>
                             <select class="form-select" id="transport-road" onclick="changeTransportWay(event)" required>
                                 <option value="0">Route</option>
                                 <option value="1">Train</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-6">
-                            <label class="form-label required">Transporteur</label>
+                            <label class="form-label required" for="transfer-transporter">Transporteur</label>
                             <input class="form-control text-transform-uppercase" name="transporter" id="transfer-transporter" required>
                         </div>
                     </div>
                     <div id="transport-details">
                         <div class="row mb-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label required">N° Camion</label>
+                                <label class="form-label required" for="transfer-truck-number">N° Camion</label>
                                 <input class="form-control text-transform-uppercase" name="truckNumber" id="transfer-truck-number" required>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label required">Chauffeur</label>
+                                <label class="form-label required" for="transfer-driver">Chauffeur</label>
                                 <input class="form-control text-transform-uppercase" name="driver" id="transfer-driver" required>
                             </div>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12 col-md-6">
-                            <label class="form-label required">Lieu de livraison</label>
+                            <label class="form-label required" for="transfer-delivery-place">Lieu de livraison</label>
                             <select class="form-select" name="deliveryPlaceId" id="transfer-delivery-place" required>
                                 <option th:each="depot : ${depots}" th:value="${depot.id}" th:text="${depot.name}"></option>
                             </select>
                         </div>
                         <div class="col-12 col-md-6">
-                            <label class="form-label required">Date de réception</label>
+                            <label class="form-label required" for="transfer-receipt-date">Date de réception</label>
                             <input class="form-control" type="date" name="receiptDate" id="transfer-receipt-date" required>
                         </div>
                     </div>

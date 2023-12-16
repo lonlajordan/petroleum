@@ -141,7 +141,6 @@
         <div th:replace="footer.html"></div>
     </div>
 </div>
-</div>
 <div class="modal modal-blur fade" id="modal-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
@@ -152,37 +151,45 @@
             <form name="saveProduct" th:action="@{/products}" autocomplete="off" method="post">
                 <input id="product-id" type="hidden" name="id">
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label required">Nom</label>
-                        <input type="text" class="form-control text-transform-uppercase" id="product-name" name="name" required>
+                    <div class="row mb-3">
+                        <div class="col col-lg-6">
+                            <label class="form-label required" for="product-name">Nom du produit</label>
+                            <input type="text" class="form-control text-transform-uppercase" id="product-name" name="name" required>
+                        </div>
+                        <div class="col col-lg-6">
+                            <label class="form-label required" for="passage">Passage dépôt</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="passage" name="passage" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label required">Passage dépôt</label>
-                        <input type="number" min="0" step="0.01" class="form-control" id="passage" name="passage" required>
+                    <div class="row mb-3">
+                        <div class="col col-lg-6">
+                            <label class="form-label required" for="passageTax">TVA sur le passage dépôt</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="passageTax" name="passageTax" required>
+                        </div>
+                        <div class="col col-lg-6">
+                            <label class="form-label required" for="refinery">Soutien à la raffinerie</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="refinery" name="refinery" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label required">TVA sur le passage dépôt</label>
-                        <input type="number" min="0" step="0.01" class="form-control" id="passageTax" name="passageTax" required>
+                    <div class="row mb-3">
+                        <div class="col col-lg-6">
+                            <label class="form-label required" for="specialTax">Taxe spéciale</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="specialTax" name="specialTax" required>
+                        </div>
+                        <div class="col col-lg-6">
+                            <label class="form-label required" for="transport">Péréquation transport</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="transport" name="transport" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label required">Soutien à la raffinerie</label>
-                        <input type="number" min="0" step="0.01" class="form-control" id="refinery" name="refinery" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required">Taxe spéciale</label>
-                        <input type="number" min="0" step="0.01" class="form-control" id="specialTax" name="specialTax" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required">Péréquation transport</label>
-                        <input type="number" min="0" step="0.01" class="form-control" id="transport" name="transport" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required">Marquage chimique</label>
-                        <input type="number" min="0" step="0.01" class="form-control" id="marking" name="marking" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required">TVA sur marquage</label>
-                        <input type="number" min="0" step="0.01" class="form-control" id="markingTax" name="markingTax" required>
+                    <div class="row mb-3">
+                        <div class="col col-lg-6">
+                            <label class="form-label required" for="marking">Marquage chimique</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="marking" name="marking" required>
+                        </div>
+                        <div class="col col-lg-6">
+                            <label class="form-label required" for="markingTax">TVA sur marquage</label>
+                            <input type="number" min="0" step="0.01" class="form-control" id="markingTax" name="markingTax" required>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
