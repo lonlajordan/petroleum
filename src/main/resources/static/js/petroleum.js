@@ -5,6 +5,8 @@ let options = {
     background: 'rgba(255, 255, 255, 0.75)'
 }
 
+document.getElementById("current-year").innerHTML = new Date().getFullYear() + "";
+
 function reverseSelection(){
     let rows = table.rows({selected : true})[0];
     table.rows().select();

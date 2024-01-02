@@ -17,7 +17,7 @@ import java.util.List;
 
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long>, PagingAndSortingRepository<Invoice, Long> {
-    Page<Invoice> findAllByOrderByDateDesc(Pageable pageable);
+    Page<Invoice> findAllByOrderByIdDesc(Pageable pageable);
     List<Invoice> findAllByProductAndStatusAndDateBetween(Product product, Status status, LocalDateTime start, LocalDateTime end);
     @Transactional
     @Modifying(clearAutomatically = true)

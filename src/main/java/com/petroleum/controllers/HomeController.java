@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
-import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,8 +28,8 @@ public class HomeController {
     @GetMapping("/home")
     public String getInvoices(@RequestParam(required = false, defaultValue = "1") int p, Model model, HttpSession session){
         Pageable pageable = PageRequest.of(p  - 1, 1000);
-        Page<Invoice> invoices = invoiceRepository.findAllByOrderByDateDesc(pageable);
-        model.addAttribute("invoices", invoices.get().collect(Collectors.toList()));
+        Page<Invoice> invoices = invoiceRepository.findAllByOrderByIdDesc(pageable);
+        model.addAttribute("invoices", invoices.toList());
         model.addAttribute("totalPages", invoices.getTotalPages());
         model.addAttribute("currentPage", p);
         model.addAttribute("filtered", false);
