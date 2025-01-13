@@ -14,5 +14,5 @@ public interface FuelRepository extends JpaRepository<Fuel, Long>, PagingAndSort
     Page<Fuel> findAllByOrderByDateDesc(Pageable pageable);
     Fuel findByCodeAndNumber(String code, int number);
     Fuel findByAmountAndNumber(double amount, int number);
-    List<Fuel> findAllByAmountOrderByNumberAsc(double amount);
+    List<Fuel> findAllByAmountAndNumberGreaterThanOrderByNumberAsc(double amount, int number);
 }

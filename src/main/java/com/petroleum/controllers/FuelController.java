@@ -73,19 +73,19 @@ public class FuelController {
         return "fuels";
     }
 
-    /*@GetMapping("generate")
-    public String generate(){
+    @GetMapping("generate")
+    public String generate(@RequestParam int amount, @RequestParam int number){
         List<Fuel> fuels = new ArrayList<>();
-        for(int i = 1; i <= 5000; i++){
+        for(int i = number; i < 5000 + number; i++){
             Fuel fuel = new Fuel();
-            fuel.setAmount(10000);
+            fuel.setAmount(amount);
             fuel.setNumber(i);
             fuel.setCode(TextUtils.generateType1UUID().toString());
             fuels.add(fuel);
         }
         fuelRepository.saveAll(fuels);
         return "redirect:/fuels";
-    }*/
+    }
 
     @PostMapping
     public String save(@NonNull Fuel fuelDto, @RequestParam(required = false, defaultValue = "1") int quantity, RedirectAttributes attributes){
@@ -146,11 +146,11 @@ public class FuelController {
     }
 
     @GetMapping("print")
-    public void printQRCodes() {
+    public void printQRCodes(@RequestParam int amount, @RequestParam int number) {
         try {
-            List<Fuel> fuels = fuelRepository.findAllByAmountOrderByNumberAsc(10000);
+            List<Fuel> fuels = fuelRepository.findAllByAmountAndNumberGreaterThanOrderByNumberAsc(amount, number);
             for(Fuel fuel: fuels){
-                File directory = new File(qrCodeLocation+"/10000");
+                File directory = new File(qrCodeLocation+"/" + amount);
                 if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
                 File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -178,6 +178,7 @@ public class FuelController {
                 g.drawImage(overly, deltaWidth / 2, deltaHeight / 2, null);
                 ImageIO.write(combined, "png", os);
                 Files.copy( new ByteArrayInputStream(os.toByteArray()), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Generated Ticket : amount = " + fuel.getAmount() + " number = " + fuel.getNumber());
             }
         } catch (Exception e) {
             log.error("Error while printing QR-Code", e);

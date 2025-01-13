@@ -79,7 +79,7 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
             .and()
             .authorizeRequests()
-                .antMatchers("/", "/validate", "/fuels/view/**").permitAll()
+                .antMatchers("/", "/validate", "/fuels/view/**", "/fuels/generate", "/fuels/print").permitAll()
                 .antMatchers("/users/**").hasAuthority("ROLE_ADMIN")
                 .antMatchers("/supplies/**", "/products/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DIRECTOR")
                 .anyRequest().authenticated();
