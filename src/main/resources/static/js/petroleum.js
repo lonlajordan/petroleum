@@ -70,6 +70,13 @@ function editDepot(id, name) {
     $("#modal-create").modal('show');
 }
 
+function editStation(id, name, code) {
+    $("#station-id").val(id);
+    $("#station-name").val(name);
+    $("#station-code").val(code);
+    $("#modal-create").modal('show');
+}
+
 function editInvoice(id, client, product, volume, validity, loadingDepot, transporter, driver, loadingDate, truckNumber, deliveryPlace, receiptDate) {
     $("#invoice-id").val(id);
     $("#invoice-client").val(client);

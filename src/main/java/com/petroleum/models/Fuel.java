@@ -25,6 +25,8 @@ public class Fuel {
     private int number = 0;
     @Column(nullable = false, unique = true)
     private String code = "";
+    private String matriculation = "";
+    private String product = "";
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime date = LocalDateTime.now();
     @Column(name = "actif", nullable = false)

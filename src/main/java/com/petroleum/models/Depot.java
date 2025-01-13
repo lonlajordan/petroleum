@@ -28,7 +28,9 @@ public class Depot {
         this.name = name;
     }
 
-    public void normalize(){
+    @PrePersist
+    @PreUpdate
+    public void beforeSave(){
         if(this.name != null) this.name = this.name.trim().toUpperCase();
     }
 }
