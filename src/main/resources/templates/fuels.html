@@ -1,6 +1,5 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<!--/*@thymesVar id="fuels" type="java.util.List<com.petroleum.models.Fuel>"*/-->
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
@@ -101,6 +100,9 @@
                                         <th>Prix (en FCFA)</th>
                                         <th>Date d'émission</th>
                                         <th>Code</th>
+                                        <th>Immatriculation</th>
+                                        <th>Station</th>
+                                        <th>Produit</th>
                                         <th>Statut</th>
                                         <th class="fit-cell-content"></th>
                                     </tr>
@@ -114,6 +116,9 @@
                                         <td th:text="${#numbers.formatDecimal(fuel.amount,1,'WHITESPACE',2,'COMMA')}"></td>
                                         <td th:text="${#temporals.format(fuel.date, 'dd-MM-yyyy  HH:mm')}"></td>
                                         <td th:text="${fuel.code}"></td>
+                                        <td th:text="${fuel.matriculation}"></td>
+                                        <td th:text="${fuel.station?.name}"></td>
+                                        <td th:text="${fuel.product?.name}"></td>
                                         <td th:if="${fuel.enabled}">
                                             <span class="badge bg-success me-1"></span> Actif
                                         </td>
@@ -179,7 +184,7 @@
                 <h5 class="modal-title">Formulaire</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form name="saveFuel" th:action="@{/fuels}" method="post">
+            <form name="saveFuel" th:action="@{/fuels}" autocomplete="off" method="post">
                 <input id="fuel-id" type="hidden" name="id">
                 <div class="modal-body">
                     <div class="mb-3">
@@ -211,7 +216,7 @@
                 <h5 class="modal-title">Recherche des bons de carburant</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form name="searchForm" th:action="@{/fuels/search}" method="post">
+            <form name="searchForm" th:action="@{/fuels/search}" autocomplete="off" method="post">
                 <div class="modal-body">
                     <input name="page" type="hidden" id="current-page" th:value="${currentPage}">
                     <div class="mb-3">

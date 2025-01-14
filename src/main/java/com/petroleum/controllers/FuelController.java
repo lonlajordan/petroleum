@@ -88,22 +88,18 @@ public class FuelController {
     }
 
     @PostMapping
-    public String save(@NonNull Fuel form, @RequestParam(required = false, defaultValue = "1") int quantity, RedirectAttributes attributes){
+    public String save(@NonNull Fuel form, RedirectAttributes attributes){
         Fuel fuel = form;
         Notification notification = new Notification();
-        if(quantity == 1 && fuel.getId() != null){
-            fuel = fuelRepository.findById(fuel.getId()).orElse(form);
+        if(form.getId() != null){
+            fuel = fuelRepository.findById(form.getId()).orElse(form);
             fuelMapper.update(fuel, form);
         }
         try {
-            if(quantity == 1 && StringUtils.isBlank(fuel.getCode())) fuel.setCode(TextUtils.generateType1UUID().toString());
-            List<Fuel> fuels = Collections.nCopies(quantity, fuel);
-            fuels.forEach(f -> f.setCode(TextUtils.generateType1UUID().toString()));
-            fuels = fuelRepository.saveAll(fuels);
-            int n = fuels.size();
+            if(StringUtils.isBlank(fuel.getCode())) fuel.setCode(TextUtils.generateType1UUID().toString());
             fuelRepository.save(fuel);
             notification.setType("success");
-            notification.setMessage(n == 1 ? "Le bon de carburant a été enregistré." : "Les bons de carburant ont été enregistrés.");
+            notification.setMessage("Le bon de carburant a été enregistré.");
         } catch (Exception e){
             log.error("Error while saving fuel ticket", e);
             notification.setType("error");
@@ -132,6 +128,11 @@ public class FuelController {
             Fuel fuel = fuelRepository.findById(id).orElse(null);
             if(fuel != null){
                 fuel.setEnabled(!fuel.isEnabled());
+                if(fuel.isEnabled()) {
+                    fuel.setProduct(null);
+                    fuel.setStation(null);
+                    fuel.setMatriculation("");
+                }
                 fuelRepository.save(fuel);
                 notification.setType("success");
                 notification.setMessage("Le bon de carburant a été " + (fuel.isEnabled() ? "activé" : "désactivé") + " avec succès.");
@@ -191,9 +192,10 @@ public class FuelController {
             Fuel fuel = fuelRepository.findById(id).orElse(null);
             if(fuel != null){
                 int amount = (int) fuel.getAmount();
-                File directory = new File(qrCodeLocation + "/" + amount);
+                File directory = new File(qrCodeLocation + File.separator  + amount);
                 if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
                 File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
+                if(!output.exists()) printQRCodes((int) fuel.getAmount(), fuel.getNumber());
                 InputStream inputStream = new InputStreamResource(Files.newInputStream(output.toPath())).getInputStream();
                 response.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
                 response.setHeader("Content-Transfer-Encoding", "binary");

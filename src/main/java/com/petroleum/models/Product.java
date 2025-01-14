@@ -38,6 +38,8 @@ public class Product {
     private List<Invoice> invoices = new ArrayList<>();
     @OneToMany(mappedBy="product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Supply> supplies = new ArrayList<>();
+    @OneToMany(mappedBy="product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Fuel> fuels = new ArrayList<>();
 
     @Transient
     private double invoiceVolume = 0;

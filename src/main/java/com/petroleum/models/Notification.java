@@ -1,19 +1,13 @@
 package com.petroleum.models;
 
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class Notification {
     private String type = "";
     private String message = "";
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
     public Notification() {
     }

@@ -26,7 +26,10 @@ public class Fuel {
     @Column(nullable = false, unique = true)
     private String code = "";
     private String matriculation = "";
-    private String product = "";
+    @ManyToOne(cascade={CascadeType.DETACH})
+    private Station station;
+    @ManyToOne(cascade={CascadeType.DETACH})
+    private Product product;
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime date = LocalDateTime.now();
     @Column(name = "actif", nullable = false)
