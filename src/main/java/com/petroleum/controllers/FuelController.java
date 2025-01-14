@@ -148,42 +148,47 @@ public class FuelController {
 
     @GetMapping("print")
     public void printQRCodes(@RequestParam int amount, @RequestParam int number) {
+        List<Fuel> fuels = fuelRepository.findAllByAmountAndNumberGreaterThanOrderByNumberAsc(amount, number);
+        for(Fuel fuel: fuels){
+            printTicket(fuel);
+        }
+    }
+
+    public void printTicket(Fuel fuel) {
         try {
-            List<Fuel> fuels = fuelRepository.findAllByAmountAndNumberGreaterThanOrderByNumberAsc(amount, number);
-            for(Fuel fuel: fuels){
-                File directory = new File(qrCodeLocation+"/" + amount);
-                if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
-                File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
-                hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-                hints.put(EncodeHintType.MARGIN, 1);
-                hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-                BitMatrix mat = new QRCodeWriter().encode(applicationUrl + servletContext.getContextPath() + "/validate?number=" + fuel.getNumber() + "&code=" + fuel.getCode(), BarcodeFormat.QR_CODE,100,100, hints);
-                BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(mat);
-                BufferedImage overly = ImageIO.read(new File("qr_logo.png"));
+            File directory = new File(qrCodeLocation + File.separator + ((int)fuel.getAmount()));
+            if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
+            File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+            hints.put(EncodeHintType.MARGIN, 1);
+            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+            BitMatrix mat = new QRCodeWriter().encode(applicationUrl + servletContext.getContextPath() + "/validate?number=" + fuel.getNumber() + "&code=" + fuel.getCode(), BarcodeFormat.QR_CODE,100,100, hints);
+            BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(mat);
+            BufferedImage overly = ImageIO.read(new File("qr_logo.png"));
 
-                Image tmp = overly.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-                BufferedImage resized = new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g2d = resized.createGraphics();
-                g2d.drawImage(tmp, 0, 0, null);
-                g2d.dispose();
-                overly = resized;
+            Image tmp = overly.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            BufferedImage resized = new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = resized.createGraphics();
+            g2d.drawImage(tmp, 0, 0, null);
+            g2d.dispose();
+            overly = resized;
 
-                int deltaHeight = qrImage.getHeight() - overly.getHeight();
-                int deltaWidth = qrImage.getWidth() - overly.getWidth();
-                BufferedImage combined = new BufferedImage(qrImage.getHeight(), qrImage.getWidth(), BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g = (Graphics2D) combined.getGraphics();
-                g.drawImage(qrImage, 0, 0, new Color(0xFF40BAD0),null);
-                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-                g.drawImage(overly, deltaWidth / 2, deltaHeight / 2, null);
-                ImageIO.write(combined, "png", os);
-                Files.copy( new ByteArrayInputStream(os.toByteArray()), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Generated Ticket : amount = " + fuel.getAmount() + " number = " + fuel.getNumber());
-            }
+            int deltaHeight = qrImage.getHeight() - overly.getHeight();
+            int deltaWidth = qrImage.getWidth() - overly.getWidth();
+            BufferedImage combined = new BufferedImage(qrImage.getHeight(), qrImage.getWidth(), BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = (Graphics2D) combined.getGraphics();
+            g.drawImage(qrImage, 0, 0, new Color(0xFF40BAD0),null);
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            g.drawImage(overly, deltaWidth / 2, deltaHeight / 2, null);
+            ImageIO.write(combined, "png", os);
+            Files.copy( new ByteArrayInputStream(os.toByteArray()), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Generated Ticket : amount = " + fuel.getAmount() + " number = " + fuel.getNumber());
         } catch (Exception e) {
             log.error("Error while printing QR-Code", e);
         }
+
     }
 
     @GetMapping("download/{id}")
@@ -192,10 +197,8 @@ public class FuelController {
             Fuel fuel = fuelRepository.findById(id).orElse(null);
             if(fuel != null){
                 int amount = (int) fuel.getAmount();
-                File directory = new File(qrCodeLocation + File.separator  + amount);
-                if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
-                File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
-                if(!output.exists()) printQRCodes((int) fuel.getAmount(), fuel.getNumber());
+                File output = new File(qrCodeLocation + File.separator + amount + File.separator + fuel.getNumber() + ".png");
+                if(!output.exists()) printTicket(fuel);
                 InputStream inputStream = new InputStreamResource(Files.newInputStream(output.toPath())).getInputStream();
                 response.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
                 response.setHeader("Content-Transfer-Encoding", "binary");
@@ -208,7 +211,7 @@ public class FuelController {
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
         } catch (Exception e) {
-            log.error("Error while downloading monthly tax report", e);
+            log.error("Error while downloading fuel ticket QR-Code", e);
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
     }
