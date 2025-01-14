@@ -55,11 +55,11 @@ public class SupplyController {
     }
 
     @PostMapping
-    public String save(@NonNull Supply supplyDto, @RequestParam long depotId, @RequestParam long productId, RedirectAttributes attributes){
-        Supply supply = supplyDto;
+    public String save(@NonNull Supply form, @RequestParam long depotId, @RequestParam long productId, RedirectAttributes attributes){
+        Supply supply = form;
         if(supply.getId() != null){
-            supply = supplyRepository.findById(supply.getId()).orElse(supplyDto);
-            supplyMapper.update(supply, supplyDto);
+            supply = supplyRepository.findById(supply.getId()).orElse(form);
+            supplyMapper.update(supply, form);
         }
         supply.setDepot(em.getReference(Depot.class, depotId));
         supply.setProduct(em.getReference(Product.class, productId));

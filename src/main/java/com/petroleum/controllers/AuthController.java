@@ -27,7 +27,7 @@ public class AuthController {
             @RequestParam(required = false, defaultValue = "") String password,
             Model model) {
         if(StringUtils.isNotBlank(error)){
-            String message = "Une erreur s'est produite. Réessayez plutard.";
+            String message = "Une erreur s'est produite. Réessayez plus tard.";
             if("1".equalsIgnoreCase(error)){
                 message = "utilisateur introuvable";
             }else if("2".equalsIgnoreCase(error)){

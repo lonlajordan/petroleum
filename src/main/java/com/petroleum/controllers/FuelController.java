@@ -88,12 +88,12 @@ public class FuelController {
     }
 
     @PostMapping
-    public String save(@NonNull Fuel fuelDto, @RequestParam(required = false, defaultValue = "1") int quantity, RedirectAttributes attributes){
-        Fuel fuel = fuelDto;
+    public String save(@NonNull Fuel form, @RequestParam(required = false, defaultValue = "1") int quantity, RedirectAttributes attributes){
+        Fuel fuel = form;
         Notification notification = new Notification();
         if(quantity == 1 && fuel.getId() != null){
-            fuel = fuelRepository.findById(fuel.getId()).orElse(fuelDto);
-            fuelMapper.update(fuel, fuelDto);
+            fuel = fuelRepository.findById(fuel.getId()).orElse(form);
+            fuelMapper.update(fuel, form);
         }
         try {
             if(quantity == 1 && StringUtils.isBlank(fuel.getCode())) fuel.setCode(TextUtils.generateType1UUID().toString());

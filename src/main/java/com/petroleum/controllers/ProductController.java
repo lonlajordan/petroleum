@@ -47,11 +47,11 @@ public class ProductController {
     }
 
     @PostMapping
-    public String save(@NonNull Product productDto, RedirectAttributes attributes){
-        Product product = productDto;
-        if(productDto.getId() != null){
-            product = productRepository.findById(product.getId()).orElse(productDto);
-            productMapper.update(product, productDto);
+    public String save(@NonNull Product form, RedirectAttributes attributes){
+        Product product = form;
+        if(form.getId() != null){
+            product = productRepository.findById(product.getId()).orElse(form);
+            productMapper.update(product, form);
         }
         product.normalize();
         Notification notification = new Notification();

@@ -182,12 +182,12 @@ public class TransferController {
     }
 
     @PostMapping
-    public String save(@NonNull Transfer transferDto, @RequestParam long productId, @RequestParam long loadingDepotId, @RequestParam long deliveryPlaceId, RedirectAttributes attributes){
-        Transfer transfer = transferDto;
+    public String save(@NonNull Transfer form, @RequestParam long productId, @RequestParam long loadingDepotId, @RequestParam long deliveryPlaceId, RedirectAttributes attributes){
+        Transfer transfer = form;
         boolean creation = true;
         if(transfer.getId() != null){
-            transfer = transferRepository.findById(transfer.getId()).orElse(transferDto);
-            transferMapper.update(transfer, transferDto);
+            transfer = transferRepository.findById(transfer.getId()).orElse(form);
+            transferMapper.update(transfer, form);
             creation = false;
         }
         transfer.setProduct(em.getReference(Product.class, productId));

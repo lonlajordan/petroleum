@@ -35,13 +35,12 @@ public class DepotController {
     }
 
     @PostMapping
-    public String save(@NonNull Depot depotDto, RedirectAttributes attributes){
-        Depot depot = depotDto;
-        if(depotDto.getId() != null){
-            depot = depotRepository.findById(depot.getId()).orElse(depotDto);
-            depotMapper.update(depot, depotDto);
+    public String save(@NonNull Depot form, RedirectAttributes attributes){
+        Depot depot = form;
+        if(form.getId() != null){
+            depot = depotRepository.findById(depot.getId()).orElse(form);
+            depotMapper.update(depot, form);
         }
-        depot.normalize();
         Notification notification = new Notification();
         try {
             depot = depotRepository.save(depot);
