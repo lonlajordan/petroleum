@@ -10,6 +10,7 @@
     <link th:href="@{/fonts/inter.css}" rel="stylesheet"/>
     <link th:href="@{/css/tabler.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/tabler-vendors.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/petroleum.css}" rel="stylesheet"/>
 </head>
 <body>
@@ -21,33 +22,73 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="card card-md">
                             <div class="ribbon ribbon-top ribbon-bookmark" th:classappend="${#bools.isTrue(fuel?.enabled) ? 'bg-green' : 'bg-danger'}">
-                                <!-- Download SVG icon from http://tabler-icons.io/i/star -->
+                                <!-- Download SVG icon from https://tabler-icons.io/i/star -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg>
                             </div>
-                            <div class="card-body text-center">
-                                <div th:if="${fuel}" class="display-8 fw-bold my-3"><span th:text="${#numbers.formatDecimal(fuel?.amount,1,'WHITESPACE',2,'COMMA')}"></span> FCFA</div>
+                            <div class="card-body">
+                                <div th:if="${fuel}" class="display-8 fw-bold my-3 text-center"><span th:text="${#numbers.formatDecimal(fuel?.amount,1,'WHITESPACE',2,'COMMA')}"></span> FCFA</div>
                                 <ul class="list-unstyled lh-lg">
                                     <li>
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/check -->
+                                        <!-- Download SVG icon from https://tabler-icons.io/i/check -->
                                         <svg th:if="${fuel}" xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
                                         <svg th:unless="${fuel}" xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                         Code : <strong th:text="${fuel != null ? 'valide' : 'invalide'}"></strong>
                                     </li>
                                     <li>
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/check -->
+                                        <!-- Download SVG icon from https://tabler-icons.io/i/check -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
-                                        Numéro : <strong th:text="${#request.getParameter('number')}"></strong>
+                                        Numéro : <strong th:text="${number}"></strong>
+                                    </li>
+                                    <li th:if="${fuel != null && !fuel.enabled}">
+                                        <!-- Download SVG icon from https://tabler-icons.io/i/check -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
+                                        Produit : <strong th:text="${fuel?.product?.name}"></strong>
+                                    </li>
+                                    <li th:if="${fuel != null && !fuel.enabled}">
+                                        <!-- Download SVG icon from https://tabler-icons.io/i/check -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
+                                        Station : <strong th:text="${fuel?.station?.name}"></strong>
+                                    </li>
+                                    <li th:if="${fuel != null && !fuel.enabled}">
+                                        <!-- Download SVG icon from https://tabler-icons.io/i/check -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
+                                        Immatriculation : <strong th:text="${fuel?.matriculation}"></strong>
                                     </li>
                                     <li th:if="${fuel}">
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/x -->
+                                        <!-- Download SVG icon from https://tabler-icons.io/i/x -->
                                         <svg th:if="${fuel.enabled}" xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg>
                                         <svg th:unless="${fuel.enabled}" xmlns="http://www.w3.org/2000/svg" class="icon me-1 text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                         Statut : <strong th:text="${fuel.enabled ? 'actif' : 'désactivé'}"></strong>
                                     </li>
                                 </ul>
-                                <div class="text-center mt-4">
-                                    <a href="https://www.abp-petroleum.com" class="btn w-100" th:classappend="${#bools.isTrue(fuel?.enabled) ? 'bg-green' : 'bg-danger'}">Aller sur le site</a>
-                                </div>
+                                <form th:if="${#bools.isTrue(fuel?.enabled)}" method="post" autocomplete="off" th:action="@{/validate}">
+                                    <hr class="my-2">
+                                    <input type="hidden" name="fuelId" th:value="${fuel?.id}" required>
+                                    <div class="mb-3">
+                                        <label for="matriculation" class="form-label required">Immatriculation du véhicule</label>
+                                        <input type="text" class="form-control text-transform-uppercase" id="matriculation" name="matriculation" th:value="${matriculation}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label required" for="product">Produit</label>
+                                        <select class="form-select" name="productId" id="product" required>
+                                            <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.name}" th:selected="${product.id == productId}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label required" for="station">Station</label>
+                                        <select class="form-select" name="stationId" id="station" required>
+                                            <option th:each="station : ${stations}" th:value="${station.id}" th:text="${station.name}" th:selected="${station.id == stationId}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="station-code" class="form-label required">Code de validation</label>
+                                        <input type="text" class="form-control" id="station-code" name="code" th:value="${code}" required>
+                                    </div>
+                                    <button class="btn btn-success w-100" type="submit">
+                                        Valider
+                                    </button>
+                                </form>
+                                <a th:if="${#bools.isFalse(fuel?.enabled)}" href="https://www.abp-petroleum.com" class="btn btn-secondary w-100 ms-auto">Accueil</a>
                             </div>
                         </div>
                     </div>
@@ -59,5 +100,16 @@
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/tabler.min.js}"></script>
 <script th:src="@{/js/demo.min.js}"></script>
+<script th:src="@{/js/js-snackbar.min.js}"></script>
+<script th:if="${notification}" th:inline="javascript">
+    new SnackBar({
+        message: /*[[${notification?.message}]]*/ '',
+        status: /*[[${notification?.type}]]*/ '',
+        dismissible: false,
+        position: 'bc',
+        fixed: true,
+        timeout: 3000,
+    });
+</script>
 </body>
 </html>

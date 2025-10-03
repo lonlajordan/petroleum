@@ -119,13 +119,6 @@ function editSupply(id, product, depot, volume) {
     $("#modal-create").modal('show');
 }
 
-function editFuel(id, number, amount) {
-    $("#fuel-id").val(id);
-    $("#fuel-number").val(number);
-    $("#fuel-amount").val(amount);
-    $("#modal-create").modal('show');
-}
-
 function rejectInvoice(id) {
     $("#invoice-reject-id").val(id);
     $("#modal-reject").modal('show');

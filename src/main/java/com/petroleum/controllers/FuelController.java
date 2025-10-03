@@ -6,15 +6,16 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.petroleum.mappers.FuelMapper;
 import com.petroleum.models.Fuel;
+import com.petroleum.models.GenerateForm;
 import com.petroleum.models.Notification;
 import com.petroleum.repositories.FuelRepository;
+import com.petroleum.services.EmailHelper;
 import com.petroleum.utils.TextUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.imageio.ImageIO;
+import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -41,10 +43,14 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.Principal;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @Controller
@@ -53,7 +59,6 @@ import java.util.stream.Collectors;
 public class FuelController {
     private final FuelRepository fuelRepository;
     private final ServletContext servletContext;
-    private final FuelMapper fuelMapper;
 
     @PersistenceContext
     private EntityManager em;
@@ -73,42 +78,66 @@ public class FuelController {
         return "fuels";
     }
 
-    @GetMapping("generate")
-    public String generate(@RequestParam int amount, @RequestParam int number){
+    @PostMapping
+    public String save(@RequestParam int amount, @RequestParam int quantity, RedirectAttributes attributes){
+        int number = fuelRepository.findMaxNumberByAmount(amount) + 1;
         List<Fuel> fuels = new ArrayList<>();
-        for(int i = number; i < 5000 + number; i++){
+        for(int i = 0; i < quantity; i++){
             Fuel fuel = new Fuel();
             fuel.setAmount(amount);
-            fuel.setNumber(i);
+            fuel.setNumber(number + i);
             fuel.setCode(TextUtils.generateType1UUID().toString());
             fuels.add(fuel);
         }
         fuelRepository.saveAll(fuels);
+        Notification notification = new Notification();
+        notification.setType("success");
+        if(quantity == 1) {
+            notification.setMessage("Un bon de carburant de  <b>" + amount + " FCFA</b> a été enregistré.");
+        } else {
+            notification.setMessage("<b>" + quantity + "</b> bons de carburant de  <b>" + amount + " FCFA</b> ont été enregistrés.");
+        }
+        attributes.addFlashAttribute("notification", notification);
         return "redirect:/fuels";
     }
 
-    @PostMapping
-    public String save(@NonNull Fuel fuelDto, @RequestParam(required = false, defaultValue = "1") int quantity, RedirectAttributes attributes){
-        Fuel fuel = fuelDto;
+    @PostMapping("generate")
+    public String generateOrDownload(@NonNull GenerateForm form, Principal principal, RedirectAttributes attributes) {
         Notification notification = new Notification();
-        if(quantity == 1 && fuel.getId() != null){
-            fuel = fuelRepository.findById(fuel.getId()).orElse(fuelDto);
-            fuelMapper.update(fuel, fuelDto);
-        }
-        try {
-            if(quantity == 1 && StringUtils.isBlank(fuel.getCode())) fuel.setCode(TextUtils.generateType1UUID().toString());
-            List<Fuel> fuels = Collections.nCopies(quantity, fuel);
-            fuels.forEach(f -> f.setCode(TextUtils.generateType1UUID().toString()));
-            fuels = fuelRepository.saveAll(fuels);
-            int n = fuels.size();
-            fuelRepository.save(fuel);
-            notification.setType("success");
-            notification.setMessage(n == 1 ? "Le bon de carburant a été enregistré." : "Les bons de carburant ont été enregistrés.");
-        } catch (Exception e){
-            log.error("Error while saving fuel ticket", e);
-            notification.setType("error");
-            notification.setMessage("Erreur lors de l'enregistrement.");
-        }
+        List<Fuel> fuels = fuelRepository.findAllByAmountAndNumberBetweenOrderByNumberAsc(form.getAmount(), form.getMinNumber(), form.getMaxNumber());
+        final String receiver = principal.getName();
+        final String subject = "Génération des qr-codes des bons de carburants ABP-PETROLEUM";
+        new Thread(() -> {
+            List<String> attachments = new ArrayList<>();
+            String body = "La génération des qr-codes s'est terminé avec succès.";
+            try {
+                final int amount = form.getAmount();
+                File file;
+                String path = qrCodeLocation + File.separator + amount + ".zip";
+                OutputStream fileOutputStream = Files.newOutputStream(Paths.get(path));
+                final ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+                for(Fuel fuel : fuels){
+                    file = new File(qrCodeLocation + File.separator + amount + File.separator + fuel.getNumber() + ".png");
+                    if(!file.exists()) printTicket(fuel);
+                    if(Boolean.TRUE.equals(form.getDownload())) zipFile(file, file.getName(), zipOutputStream);
+                }
+                if(Boolean.TRUE.equals(form.getDownload())) {
+                    zipOutputStream.close();
+                    body += " Bien vouloir trouver les qr-codes dans l'archive en pièce jointe.";
+                    attachments.add(path);
+                }
+            } catch (Exception e) {
+                body = "Malheureusement une erreur s'est produit lors de la génération des qr-codes. Bien vouloir réessayer, contactez votre administrateur si l'erreur persiste.";
+                log.error(e.getMessage(), e);
+            }
+            try {
+                EmailHelper.sendMailWithAttachments(receiver, "", subject, body, attachments);
+            } catch (MessagingException e) {
+                log.error("Unable to send mail after qr-code generation", e);
+            }
+        }).start();
+        notification.setType("success");
+        notification.setMessage("Vous serrez notifié par mail à la fin de cette opération.");
         attributes.addFlashAttribute("notification", notification);
         return "redirect:/fuels";
     }
@@ -132,6 +161,11 @@ public class FuelController {
             Fuel fuel = fuelRepository.findById(id).orElse(null);
             if(fuel != null){
                 fuel.setEnabled(!fuel.isEnabled());
+                if(fuel.isEnabled()) {
+                    fuel.setProduct(null);
+                    fuel.setStation(null);
+                    fuel.setMatriculation("");
+                }
                 fuelRepository.save(fuel);
                 notification.setType("success");
                 notification.setMessage("Le bon de carburant a été " + (fuel.isEnabled() ? "activé" : "désactivé") + " avec succès.");
@@ -145,44 +179,41 @@ public class FuelController {
         return "redirect:/fuels";
     }
 
-    @GetMapping("print")
-    public void printQRCodes(@RequestParam int amount, @RequestParam int number) {
+    public void printTicket(Fuel fuel) {
         try {
-            List<Fuel> fuels = fuelRepository.findAllByAmountAndNumberGreaterThanOrderByNumberAsc(amount, number);
-            for(Fuel fuel: fuels){
-                File directory = new File(qrCodeLocation+"/" + amount);
-                if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
-                File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
-                hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-                hints.put(EncodeHintType.MARGIN, 1);
-                hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-                BitMatrix mat = new QRCodeWriter().encode(applicationUrl + servletContext.getContextPath() + "/validate?number=" + fuel.getNumber() + "&code=" + fuel.getCode(), BarcodeFormat.QR_CODE,100,100, hints);
-                BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(mat);
-                BufferedImage overly = ImageIO.read(new File("qr_logo.png"));
+            File directory = new File(qrCodeLocation + File.separator + ((int)fuel.getAmount()));
+            if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
+            File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+            hints.put(EncodeHintType.MARGIN, 1);
+            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+            BitMatrix mat = new QRCodeWriter().encode(applicationUrl + servletContext.getContextPath() + "/validate?number=" + fuel.getNumber() + "&code=" + fuel.getCode(), BarcodeFormat.QR_CODE,100,100, hints);
+            BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(mat);
+            BufferedImage overly = ImageIO.read(new File("qr_logo.png"));
 
-                Image tmp = overly.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-                BufferedImage resized = new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g2d = resized.createGraphics();
-                g2d.drawImage(tmp, 0, 0, null);
-                g2d.dispose();
-                overly = resized;
+            Image tmp = overly.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            BufferedImage resized = new BufferedImage(20, 20, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = resized.createGraphics();
+            g2d.drawImage(tmp, 0, 0, null);
+            g2d.dispose();
+            overly = resized;
 
-                int deltaHeight = qrImage.getHeight() - overly.getHeight();
-                int deltaWidth = qrImage.getWidth() - overly.getWidth();
-                BufferedImage combined = new BufferedImage(qrImage.getHeight(), qrImage.getWidth(), BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g = (Graphics2D) combined.getGraphics();
-                g.drawImage(qrImage, 0, 0, new Color(0xFF40BAD0),null);
-                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-                g.drawImage(overly, deltaWidth / 2, deltaHeight / 2, null);
-                ImageIO.write(combined, "png", os);
-                Files.copy( new ByteArrayInputStream(os.toByteArray()), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Generated Ticket : amount = " + fuel.getAmount() + " number = " + fuel.getNumber());
-            }
+            int deltaHeight = qrImage.getHeight() - overly.getHeight();
+            int deltaWidth = qrImage.getWidth() - overly.getWidth();
+            BufferedImage combined = new BufferedImage(qrImage.getHeight(), qrImage.getWidth(), BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = (Graphics2D) combined.getGraphics();
+            g.drawImage(qrImage, 0, 0, new Color(0xFF40BAD0),null);
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            g.drawImage(overly, deltaWidth / 2, deltaHeight / 2, null);
+            ImageIO.write(combined, "png", os);
+            Files.copy( new ByteArrayInputStream(os.toByteArray()), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Generated Ticket : amount = " + fuel.getAmount() + " number = " + fuel.getNumber());
         } catch (Exception e) {
             log.error("Error while printing QR-Code", e);
         }
+
     }
 
     @GetMapping("download/{id}")
@@ -191,9 +222,8 @@ public class FuelController {
             Fuel fuel = fuelRepository.findById(id).orElse(null);
             if(fuel != null){
                 int amount = (int) fuel.getAmount();
-                File directory = new File(qrCodeLocation + "/" + amount);
-                if (!directory.exists() && !directory.mkdirs()) throw new SecurityException("Error while creating qr codes folder");
-                File output = new File(directory.getAbsolutePath() + File.separator + fuel.getNumber() + ".png");
+                File output = new File(qrCodeLocation + File.separator + amount + File.separator + fuel.getNumber() + ".png");
+                if(!output.exists()) printTicket(fuel);
                 InputStream inputStream = new InputStreamResource(Files.newInputStream(output.toPath())).getInputStream();
                 response.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
                 response.setHeader("Content-Transfer-Encoding", "binary");
@@ -206,7 +236,7 @@ public class FuelController {
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
         } catch (Exception e) {
-            log.error("Error while downloading monthly tax report", e);
+            log.error("Error while downloading fuel ticket QR-Code", e);
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
     }
@@ -253,5 +283,26 @@ public class FuelController {
         model.addAttribute("number", number);
         model.addAttribute("status", status);
         return "fuels";
+    }
+
+    private void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
+        if (fileToZip.isHidden()) return;
+        if (fileToZip.isDirectory()) {
+            zipOut.putNextEntry(new ZipEntry(fileName + (fileName.endsWith("/") ? "" : "/")));
+            zipOut.closeEntry();
+            for (File childFile : ObjectUtils.defaultIfNull(fileToZip.listFiles(), new File[]{})) {
+                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+            }
+            return;
+        }
+        FileInputStream fis = new FileInputStream(fileToZip);
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOut.putNextEntry(zipEntry);
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+            zipOut.write(bytes, 0, length);
+        }
+        fis.close();
     }
 }

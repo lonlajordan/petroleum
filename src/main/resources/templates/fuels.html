@@ -1,6 +1,5 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<!--/*@thymesVar id="fuels" type="java.util.List<com.petroleum.models.Fuel>"*/-->
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
@@ -68,9 +67,13 @@
                                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="3" y1="3" x2="21" y2="21" /><path d="M9 5h9.5a1 1 0 0 1 .5 1.5l-4.049 4.454m-.951 3.046v5l-4 -3v-4l-5 -5.5a1 1 0 0 1 .18 -1.316" /></svg>
                                 <span class="d-none d-md-inline-block">Annuler le filtre</span>
                             </a>
-                            <a id="filter-items" data-bs-toggle="modal" data-bs-target="#modal-search" class="btn btn-success d-none d-sm-inline-block">
+                            <a id="filter-items" data-bs-toggle="modal" data-bs-target="#modal-search" class="btn btn-secondary d-none d-sm-inline-block">
                                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.5 5h13a1 1 0 0 1 .5 1.5l-5 5.5l0 7l-4 -3l0 -4l-5 -5.5a1 1 0 0 1 .5 -1.5" /></svg>
                                 Filtrer
+                            </a>
+                            <a id="generate-items" data-bs-toggle="modal" data-bs-target="#modal-generate" class="btn btn-warning d-none d-sm-inline-block">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"> <path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path> <path d="M7 17l0 .01"></path> <path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path> <path d="M7 7l0 .01"></path> <path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path> <path d="M17 7l0 .01"></path> <path d="M14 14l3 0"></path> <path d="M20 14l0 .01"></path> <path d="M14 14l0 3"></path> <path d="M14 20l3 0"></path> <path d="M17 17l3 0"></path> <path d="M20 17l0 3"></path> </svg>
+                                QR-Code
                             </a>
                             <a id="add-item" data-bs-toggle="modal" data-bs-target="#modal-create" class="btn btn-success d-none d-sm-inline-block">
                                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
@@ -101,6 +104,9 @@
                                         <th>Prix (en FCFA)</th>
                                         <th>Date d'émission</th>
                                         <th>Code</th>
+                                        <th>Immatriculation</th>
+                                        <th>Station</th>
+                                        <th>Produit</th>
                                         <th>Statut</th>
                                         <th class="fit-cell-content"></th>
                                     </tr>
@@ -114,6 +120,9 @@
                                         <td th:text="${#numbers.formatDecimal(fuel.amount,1,'WHITESPACE',2,'COMMA')}"></td>
                                         <td th:text="${#temporals.format(fuel.date, 'dd-MM-yyyy  HH:mm')}"></td>
                                         <td th:text="${fuel.code}"></td>
+                                        <td th:text="${fuel.matriculation}"></td>
+                                        <td th:text="${fuel.station?.name}"></td>
+                                        <td th:text="${fuel.product?.name}"></td>
                                         <td th:if="${fuel.enabled}">
                                             <span class="badge bg-success me-1"></span> Actif
                                         </td>
@@ -133,10 +142,6 @@
                                                     <a th:unless="${fuel.enabled}" class="dropdown-item mw-0" th:href="@{'/fuels/' + ${fuel.id} + '/toggle'}">
                                                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="16" cy="12" r="2" /><rect x="2" y="6" width="20" height="12" rx="6" /></svg>
                                                         <span class="ml-2">Activer</span>
-                                                    </a>
-                                                    <a class="dropdown-item mw-0" th:data-id="${fuel.id}" th:data-number="${fuel.number}" th:data-amount="${fuel.amount}" href="#" onclick="editFuel(this.getAttribute('data-id'), this.getAttribute('data-number'), this.getAttribute('data-amount'))">
-                                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
-                                                        <span class="ml-2">Modifier</span>
                                                     </a>
                                                     <a class="dropdown-item mw-0" th:href="@{/fuels/download/{id}(id=${fuel.id})}">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -179,12 +184,12 @@
                 <h5 class="modal-title">Formulaire</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form name="saveFuel" th:action="@{/fuels}" method="post">
+            <form name="saveFuel" th:action="@{/fuels}" autocomplete="off" method="post">
                 <input id="fuel-id" type="hidden" name="id">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label required" for="fuel-number">Numéro</label>
-                        <input type="number" min="1" step="1" class="form-control" id="fuel-number" name="number" required>
+                        <label class="form-label required" for="fuel-quantity">Quantité</label>
+                        <input type="number" min="1" step="1" class="form-control" id="fuel-quantity" name="quantity" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label required" for="fuel-amount">Prix (en FCFA)</label>
@@ -204,6 +209,49 @@
         </div>
     </div>
 </div>
+<div class="modal modal-blur fade" id="modal-generate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Génération des codes QR des bons de carburant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form name="generateForm" th:action="@{/fuels/generate}" autocomplete="off" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label required" for="download">Action</label>
+                        <select class="form-select" name="download" id="download" required>
+                            <option value="false">Générer</option>
+                            <option value="true">Télécharger</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="generate-amount" class="form-label required">Montant</label>
+                        <input id="generate-amount" class="form-control" name="amount" type="number" th:value="${amount}">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required" for="number-min">Numéro Min</label>
+                            <input class="form-control" name="minNumber" type="number" id="number-min" min="1" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label required" for="number-max">Numéro Max</label>
+                            <input class="form-control" name="maxNumber" type="number" id="number-max" min="1" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Annuler
+                    </a>
+                    <button class="btn btn-primary ms-auto" type="submit">
+                        Valider
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="modal modal-blur fade" id="modal-search" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -211,7 +259,7 @@
                 <h5 class="modal-title">Recherche des bons de carburant</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form name="searchForm" th:action="@{/fuels/search}" method="post">
+            <form name="searchForm" th:action="@{/fuels/search}" autocomplete="off" method="post">
                 <div class="modal-body">
                     <input name="page" type="hidden" id="current-page" th:value="${currentPage}">
                     <div class="mb-3">

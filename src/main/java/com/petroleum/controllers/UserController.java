@@ -104,12 +104,12 @@ public class UserController {
     }
 
     @PostMapping
-    public String saveUser(@NonNull User userDto, RedirectAttributes attributes, HttpSession session){
-        User user = userDto;
+    public String saveUser(@NonNull User form, RedirectAttributes attributes, HttpSession session){
+        User user = form;
         String password;
-        if(userDto.getId() != null){
-            user = userRepository.findById(user.getId()).orElse(userDto);
-            userMapper.update(user, userDto);
+        if(form.getId() != null){
+            user = userRepository.findById(user.getId()).orElse(form);
+            userMapper.update(user, form);
         } else {
             password = TextUtils.generatePassword();
             user.setPassword(new BCryptPasswordEncoder().encode(password));
@@ -129,8 +129,8 @@ public class UserController {
             user = userRepository.save(user);
             notification.setType("success");
             notification.setMessage("<b>" + user.getName() +"</b> a été enregistré.");
-            userDto = (User) session.getAttribute("user");
-            if(userDto != null && userDto.getId().equals(user.getId())){
+            form = (User) session.getAttribute("user");
+            if(form != null && form.getId().equals(user.getId())){
                 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                 Collection<SimpleGrantedAuthority> authorities$ = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
                 auth = new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), authorities$);

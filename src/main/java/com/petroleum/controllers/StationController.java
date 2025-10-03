@@ -34,21 +34,21 @@ public class StationController {
     }
 
     @PostMapping
-    public String save(@NonNull Station stationDto, RedirectAttributes attributes){
-        Station station = stationDto;
-        if(stationDto.getId() != null){
-            station = stationRepository.findById(station.getId()).orElse(stationDto);
-            stationMapper.update(station, stationDto);
+    public String save(@NonNull Station form, RedirectAttributes attributes){
+        Station station = form;
+        if(form.getId() != null){
+            station = stationRepository.findById(station.getId()).orElse(form);
+            stationMapper.update(station, form);
         }
         Notification notification = new Notification();
         try {
             station = stationRepository.save(station);
             notification.setType("success");
-            notification.setMessage("<b>" + station.getName() +"</b> a été enregistré.");
+            notification.setMessage("La station <b>" + station.getName() +"</b> a été enregistrée.");
         } catch (Exception e){
             log.error("Error while saving station", e);
             notification.setType("error");
-            notification.setMessage("Erreur lors de l'enregistrement du dépôt <b>[ " + station.getName() + " ]</b>.");
+            notification.setMessage("Erreur lors de l'enregistrement de la station <b>[ " + station.getName() + " ]</b>.");
         }
 
         attributes.addFlashAttribute("notification", notification);
