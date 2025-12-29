@@ -78,7 +78,7 @@ public class Scheduler {
         }
     }
 
-    @Scheduled(cron = "0 20 10 ? * MON", zone = "GMT+1")
+    @Scheduled(cron = "0 20 11 ? * MON", zone = "GMT+1")
     public void sendReminder(){
         String message = new Random().nextBoolean() ? "Paye tes factuers ENEO facilement" : "Pay your ENEO bills easily";
         boolean success = sendNotification("ONE BILLS", message);
