@@ -26,7 +26,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
@@ -50,22 +49,6 @@ public class Scheduler {
     private final InvoiceRepository invoiceRepository;
     private final TransferRepository transferRepository;
     private final UserRepository userRepository;
-
-    @PostConstruct
-    public void initialize() {
-        try {
-            InputStream serviceAccount = new ClassPathResource("one-bills-firebase.json").getInputStream();
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
-
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
-            }
-        } catch (Exception e) {
-            log.error("Error loading Firebase configurations", e);
-        }
-    }
 
     // Delete all logs every first of each month at midnight
     @Scheduled(cron = "@monthly", zone = "GMT+1")
@@ -95,20 +78,41 @@ public class Scheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 10 ? * MON", zone = "GMT+1")
+    @Scheduled(cron = "0 20 10 ? * MON", zone = "GMT+1")
     public void sendReminder(){
-        sendNotification("ONE BILLS", new Random().nextBoolean() ? "Paye tes factuers ENEO facilement" : "Pay your ENEO bills easily");
+        String message = new Random().nextBoolean() ? "Paye tes factuers ENEO facilement" : "Pay your ENEO bills easily";
+        boolean success = sendNotification("ONE BILLS", message);
+        if(!success){
+            sendNotification("ONE BILLS", message);
+        }
     }
 
 
     @Scheduled(cron = "0 0 15 ? * SAT", zone = "GMT+1")
     public void sendReminder2(){
-        sendNotification("ONE BILLS", new Random().nextBoolean() ? "Collecte tes points bonus, et enjoy avec tes proches" : "Collect your bonus points, and enjoy with your loved ones");
+        String message = new Random().nextBoolean() ? "Collecte tes points bonus, et enjoy avec tes proches" : "Collect your bonus points, and enjoy with your loved ones";
+        boolean success = sendNotification("ONE BILLS", message);
+        if(!success){
+            sendNotification("ONE BILLS", message);
+        }
     }
 
 
 
-    public void sendNotification(String title, String body) {
+    public boolean sendNotification(String title, String body) {
+        try {
+            InputStream serviceAccount = new ClassPathResource("one-bills-firebase.json").getInputStream();
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+
+            if (FirebaseApp.getApps().isEmpty()) {
+                FirebaseApp.initializeApp(options);
+            }
+        } catch (Exception e) {
+            log.error("Error loading Firebase configurations", e);
+            return false;
+        }
         // Create the notification message
         Notification notification = Notification.builder()
                 .setTitle(title)
@@ -125,9 +129,11 @@ public class Scheduler {
         try {
             String response = FirebaseMessaging.getInstance().send(message);
             log.info("Successfully sent message: {}", response);
+            return true;
         } catch (Exception e) {
             log.error("Failed to send message", e);
         }
+        return false;
     }
 
 }
